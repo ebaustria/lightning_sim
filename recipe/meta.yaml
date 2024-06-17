@@ -1,5 +1,5 @@
 package:
-  name: lightningsim
+  name: lightningsim_trace
   version: "0.2.1"
 
 source:

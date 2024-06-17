@@ -34,6 +34,7 @@ from typing import (
     Generic,
     TypeVar,
 )
+from .trace_writer import write_trace
 from .model import Solution, ProjectFile
 from .trace_file import ResolvedTrace, await_trace_functions, read_trace, resolve_trace
 
@@ -583,6 +584,7 @@ class Runner:
 
         with self.steps[RunnerStep.RESOLVING_TRACE] as step:
             trace = await resolve_trace(trace, progress_callback=step.set_progress)
+            write_trace(trace)
             self.trace = trace
 
         return trace
