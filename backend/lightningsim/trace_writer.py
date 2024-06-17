@@ -6,7 +6,7 @@ from .trace_file import ResolvedTrace
 
 
 def write_trace(trace: ResolvedTrace):
-    n_context: nullcontext[str] = nullcontext(mkdtemp(prefix="lightningsim."))
+    n_context = nullcontext(mkdtemp(prefix="lightningsim."))
     output_dir = Path(n_context)
     trace_path = output_dir / "trace"
     with open(trace_path, "r+") as f:
