@@ -1,0 +1,4 @@
+name: lightningsim_trace
+channels:
+  - conda-forge
+  - file:///pub/scratch/ebush/Projects/lightning_sim/channel
