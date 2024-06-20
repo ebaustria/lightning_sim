@@ -3,11 +3,11 @@ requires = ["setuptools", "setuptools-rust"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "lightningsim"
+name = "lightningsim_trace"
 authors = [
     {name = "Rishov Sarkar", email = "rishov.sarkar@gatech.edu"},
 ]
-version = "0.2.1"
+version = "0.2.2"
 
 [tool.setuptools.packages.find]
 namespaces = false
