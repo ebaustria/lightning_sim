@@ -16,11 +16,14 @@ def fifo_json_obj(resolved_stream: ResolvedStream) -> dict:
     }
 
 
-def write_trace(trace: ResolvedTrace):
-    cwd = os.getcwd()
-    print(f"cwd: {cwd}")
-    output_dir = Path(cwd)
-    trace_path = output_dir / "trace.json"
+def resolve_trace_path(base_name: str) -> Path:
+    file_dir = os.path.dirname(os.path.realpath(__file__))
+    print(f"file_dir: {file_dir}")
+    return Path(file_dir) / "trace" / base_name
+
+
+def write_resolved_trace(trace: ResolvedTrace):
+    trace_path = resolve_trace_path("resolved_trace.json")
     print(f"trace path: {trace_path}")
 
     params = trace.params
