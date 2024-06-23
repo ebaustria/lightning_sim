@@ -32,4 +32,3 @@ for file in "$conda_dir"/conda-bld/linux-64/lightningsim_trace-0.2.2*.tar.bz2; d
 done
 
 conda index "$proj_root/channel/"
-conda env update --file "$proj_root/environment.yml"
