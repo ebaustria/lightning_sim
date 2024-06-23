@@ -46,6 +46,8 @@ def write_resolved_trace(trace: ResolvedTrace):
     else:
         print(f"Output path '{trace_path}' does not exist. Nothing to remove.")
 
+    os.makedirs(os.path.dirname(trace_path), exist_ok=True)
+    
     print(f"Writing new trace to output path '{trace_path}'.")
     with open(trace_path, "w+", encoding="utf-8") as f:
         json.dump(json_data, f, ensure_ascii=False, indent=4)
