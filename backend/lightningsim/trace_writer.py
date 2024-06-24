@@ -38,22 +38,26 @@ def channel_depths_json_obj(channel_depths: Dict[Stream, int]):
     return { key.name: { "id": key.id, "address": key.address, "value": value } for key, value in channel_depths.items() }
 
 
+def derive_metadata(trace_entry: TraceEntry):
+    type = trace_entry.type
+    metadata = trace_entry.metadata
+
+    if type in ("trace_bb", "loop_bb"):
+        return { "function": metadata.function, "basic_block": metadata.basic_block }
+    if type in ("fifo_read", "fifo_write"):
+        return { "fifo": { "address": metadata.fifo.address, "id": metadata.fifo.id, "name": metadata.fifo.name } }
+    if type in ("axi_readreq", "axi_writereq"):
+        return { "offset": metadata.offset, "increment": metadata.increment, "count": metadata.count, "interface": { "address": metadata.interface.address, "name": metadata.interface.name } }
+    if type in ("axi_read", "axi_write", "axi_writeresp"):
+        return { "interface": { "address": metadata.interface.address, "name": metadata.interface.name } }
+    return { "name": metadata.name, "tripcount": metadata.tripcount }
+
+
 # TODO Add more information to this
 def trace_entry_json_obj(trace_entry: TraceEntry):
-    metadata: TraceMetadata = trace_entry.metadata
     return {
         "type": trace_entry.type,
-        "metadata": {
-            "basic_block": metadata.basic_block,
-            "count": metadata.count,
-            "fifo": metadata.fifo,
-            "function": metadata.function,
-            "increment": metadata.increment,
-            "interface": metadata.interface,
-            "name": metadata.name,
-            "offset": metadata.offset,
-            "tripcount": metadata.tripcount
-        }
+        "metadata": derive_metadata(trace_entry)
     }
 
 
