@@ -2,7 +2,7 @@ from pathlib import Path
 import os
 import json
 from typing import Dict
-from .trace_file import AXIInterface, ResolvedStream, ResolvedTrace, Stream, TraceEntry, UnresolvedTrace
+from .trace_file import AXIInterface, ResolvedStream, ResolvedTrace, Stream, TraceEntry, TraceMetadata, UnresolvedTrace
 from .model import Function
 
 def axi_json_obj(axi_interface: AXIInterface) -> Dict:
@@ -20,7 +20,14 @@ def fifo_json_obj(resolved_stream: ResolvedStream) -> Dict:
 
 # TODO Add more information to this
 def functions_json_obj(functions: Dict[str, Function]) -> Dict[str, str]:
-    return { key: value.name for key, value in functions.items() }
+    return {
+        key: {
+            "name": value.name,
+            "instruction_latencies": {
+                inst.name: latency.length for inst, latency in value.instruction_latencies.items()
+            }
+        } for key, value in functions.items()
+    }
 
 
 def axi_latencies_json_obj(axi_latencies: Dict[AXIInterface, int]) -> Dict[str, int]:
@@ -33,7 +40,21 @@ def channel_depths_json_obj(channel_depths: Dict[Stream, int]):
 
 # TODO Add more information to this
 def trace_entry_json_obj(trace_entry: TraceEntry):
-    return { "type": trace_entry.type }
+    metadata: TraceMetadata = trace_entry.metadata
+    return {
+        "type": trace_entry.type,
+        "metadata": {
+            "basic_block": metadata.basic_block,
+            "count": metadata.count,
+            "fifo": metadata.fifo,
+            "function": metadata.function,
+            "increment": metadata.increment,
+            "interface": metadata.interface,
+            "name": metadata.name,
+            "offset": metadata.offset,
+            "tripcount": metadata.tripcount
+        }
+    }
 
 
 def resolve_trace_path(base_name: str) -> Path:
