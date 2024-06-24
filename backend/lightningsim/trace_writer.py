@@ -2,8 +2,9 @@ from pathlib import Path
 import os
 import json
 from typing import Dict
+
 from .trace_file import AXIInterface, ResolvedStream, ResolvedTrace, Stream, TraceEntry, TraceMetadata, UnresolvedTrace
-from .model import Function
+from .model import Function, Instruction, InstructionLatency
 
 def axi_json_obj(axi_interface: AXIInterface) -> Dict:
     return { "name": axi_interface.name, "address": axi_interface.address }
@@ -17,16 +18,41 @@ def fifo_json_obj(resolved_stream: ResolvedStream) -> Dict:
         "width": resolved_stream.width
     }
 
+def instruction_json_obj(inst: Instruction) -> Dict:
+    return {
+        "bitwidth": inst.bitwidth,
+        "id": inst.id,
+        "function_name": inst.function_name,
+        "index": inst.index,
+        "name": inst.name,
+        "opcode": inst.opcode
+    }
+
+def inst_latency_json_obj(latency: InstructionLatency) -> Dict:
+    return {
+        "length": latency.length,
+        "start": latency.start,
+        "end": latency.end,
+        "relative_start": latency.relative_start,
+        "relative_end": latency.relative_end
+    }
+
 
 # TODO Add more information to this
 def functions_json_obj(functions: Dict[str, Function]) -> Dict[str, str]:
     return {
         key: {
-            "name": value.name,
+            "name": func.name,
             "instruction_latencies": {
-                inst.name: latency.length for inst, latency in value.instruction_latencies.items()
+                inst.name: inst_latency_json_obj(latency) for inst, latency in func.instruction_latencies.items()
+            },
+            "instructions": {
+                key: instruction_json_obj(inst) for key, inst in func.instructions.items()
+            },
+            "named_instructions": {
+                name: instruction_json_obj(inst) for name, inst in func.named_instructions.items()
             }
-        } for key, value in functions.items()
+        } for key, func in functions.items()
     }
 
 
