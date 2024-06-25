@@ -3,8 +3,11 @@ import os
 import json
 from typing import Dict
 
-from .trace_file import AXIInterface, ResolvedStream, ResolvedTrace, Stream, TraceEntry, TraceMetadata, UnresolvedTrace
-from .model import Function, Instruction, InstructionLatency
+from .trace_file import AXIInterface, ResolvedStream, ResolvedTrace, Stream, TraceEntry, UnresolvedTrace
+from .model import Function, Instruction, InstructionLatency, CDFGEdge, BasicBlock
+from .model.function import Port
+from .model.dataflow import Channel
+
 
 def axi_json_obj(axi_interface: AXIInterface) -> Dict:
     return { "name": axi_interface.name, "address": axi_interface.address }
@@ -18,15 +21,59 @@ def fifo_json_obj(resolved_stream: ResolvedStream) -> Dict:
         "width": resolved_stream.width
     }
 
+
+def operand_json_obj(operand: CDFGEdge) -> Dict:
+    return {
+        "id": operand.id,
+        "type": operand.type,
+        "is_back_edge": operand.is_back_edge,
+        "source_id": operand.source_id,
+        "sink_id": operand.sink_id
+    }
+
+
+def channel_json_obj(channel: Channel):
+    return {
+        "id": channel.id,
+        "name": channel.name,
+        "is_scalar": channel.is_scalar,
+        "sources": [source.id for source in channel.sources],
+        "sinks": [sink.id for sink in channel.sinks]
+    }
+
+
+def basic_block_json_obj(basic_block: BasicBlock):
+    dataflow = {}
+    if basic_block.dataflow:
+        dataflow = {
+            "channels": [channel_json_obj(channel) for channel in basic_block.dataflow.channels]
+        }
+    return {
+        "id": basic_block.id,
+        "ii": basic_block.ii if basic_block.ii is not None else -1,
+        "end": basic_block.end,
+        "start": basic_block.start,
+        "is_dataflow": basic_block.is_dataflow,
+        "is_pipeline": basic_block.is_pipeline,
+        "is_pipeline_critical_path": basic_block.is_pipeline_critical_path,
+        "is_sequential": basic_block.is_sequential,
+        "dataflow": dataflow
+    }
+
+
 def instruction_json_obj(inst: Instruction) -> Dict:
+    inst.operands
     return {
         "bitwidth": inst.bitwidth,
         "id": inst.id,
         "function_name": inst.function_name,
         "index": inst.index,
         "name": inst.name,
-        "opcode": inst.opcode
+        "opcode": inst.opcode,
+        "operands": [operand_json_obj(operand) for operand in inst.operands if operand is not None],
+        "latency": inst_latency_json_obj(inst.latency)
     }
+
 
 def inst_latency_json_obj(latency: InstructionLatency) -> Dict:
     return {
@@ -38,20 +85,24 @@ def inst_latency_json_obj(latency: InstructionLatency) -> Dict:
     }
 
 
+def port_json_obj(port: Port) -> Dict:
+    return {
+        "id": port.id,
+        "interface_type": port.interface_type,
+        "name": port.name
+    }
+
+
 # TODO Add more information to this
 def functions_json_obj(functions: Dict[str, Function]) -> Dict[str, str]:
     return {
         key: {
             "name": func.name,
-            "instruction_latencies": {
-                inst.name: inst_latency_json_obj(latency) for inst, latency in func.instruction_latencies.items()
-            },
             "instructions": {
-                key: instruction_json_obj(inst) for key, inst in func.instructions.items()
+                id: instruction_json_obj(inst) for id, inst in func.instructions.items()
             },
-            "named_instructions": {
-                name: instruction_json_obj(inst) for name, inst in func.named_instructions.items()
-            }
+            "ports": { port_id: port_json_obj(port) for port_id, port in func.ports.items() },
+            "basic_blocks": { bb_id: basic_block_json_obj(basic_block) for bb_id, basic_block in func.basic_blocks.items() }
         } for key, func in functions.items()
     }
 
