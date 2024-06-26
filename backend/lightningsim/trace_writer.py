@@ -1,6 +1,7 @@
 from pathlib import Path
 import os
 import json
+import sys
 from typing import Dict
 
 from .trace_file import AXIInterface, ResolvedStream, ResolvedTrace, Stream, TraceEntry, UnresolvedTrace
@@ -86,6 +87,8 @@ def inst_latency_json_obj(latency: InstructionLatency) -> Dict:
 
 
 def port_json_obj(port: Port) -> Dict:
+    print(f"Writing port '{port.name}' element tree to standard output")
+    port.xml.write(sys.stdout.buffer)
     return {
         "id": port.id,
         "interface_type": port.interface_type,
