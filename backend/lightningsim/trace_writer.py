@@ -4,6 +4,7 @@ import json
 import sys
 from typing import Dict
 
+from .writer_utils import resolve_trace_path
 from .trace_file import AXIInterface, ResolvedStream, ResolvedTrace, Stream, TraceEntry, UnresolvedTrace
 from .model import Function, Instruction, InstructionLatency, CDFGEdge, BasicBlock
 from .model.function import Port
@@ -141,12 +142,6 @@ def trace_entry_json_obj(trace_entry: TraceEntry):
     }
 
 
-def resolve_trace_path(base_name: str) -> Path:
-    file_dir = os.path.dirname(os.path.realpath(__file__))
-    print(f"file_dir: {file_dir}")
-    return Path(file_dir) / "trace" / base_name
-
-
 def write_trace_json(json_data: Dict, trace_path: Path):
     if os.path.exists(trace_path):
         print(f"Output path '{trace_path}' exists. Removing...")
@@ -162,7 +157,7 @@ def write_trace_json(json_data: Dict, trace_path: Path):
 
 
 def write_unresolved_trace(trace: UnresolvedTrace):
-    trace_path = resolve_trace_path("unresolved_trace.json")
+    trace_path = resolve_trace_path("trace", "unresolved_trace.json")
 
     json_data = {
         "byte_count": trace.byte_count,
@@ -178,7 +173,7 @@ def write_unresolved_trace(trace: UnresolvedTrace):
 
 
 def write_resolved_trace(trace: ResolvedTrace):
-    trace_path = resolve_trace_path("resolved_trace.json")
+    trace_path = resolve_trace_path("trace", "resolved_trace.json")
     print(f"trace path: {trace_path}")
 
     params = trace.params

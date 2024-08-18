@@ -17,6 +17,7 @@ from .model import Solution
 from .runner import CompletedProcess, Runner, RunnerStep, Step
 from .simulator import Simulation, simulate
 from .trace_file import ResolvedStream, ResolvedTrace, SimulationParameters
+from .simulation_writer import write_actual_simulation
 
 
 DEFAULT_PORT_MIN = 8080
@@ -305,6 +306,7 @@ class Server:
             try:
                 with self.steps[GlobalStep.RUNNING_SIMULATION_ACTUAL]:
                     self.simulation_actual = await simulate(self.trace)
+                    write_actual_simulation(self.simulation_actual)
             except Exception:
                 self.simulation_actual = None
                 return False
