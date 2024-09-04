@@ -4,7 +4,7 @@ from typing import Dict
 from pathlib import Path
 
 from ._core import AxiGenericIo, AxiInterface, AxiInterfaceIo, SimulatedModule
-from .writer_utils import resolve_trace_path
+from .writer_utils import resolve_path
 from .simulator import Simulation
 
 
@@ -33,7 +33,7 @@ def fifo_json_obj():
 
 
 def write_simulation(json_data: Dict):
-    sim_path: Path = resolve_trace_path("simulation", "actual_simulation.json")
+    sim_path: Path = resolve_path("simulation", "actual_simulation.json")
     print(f"trace path: {sim_path}")
 
     if os.path.exists(sim_path):

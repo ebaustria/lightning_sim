@@ -4,7 +4,7 @@ import json
 import sys
 from typing import Dict
 
-from .writer_utils import resolve_trace_path
+from .writer_utils import resolve_path
 from .trace_file import AXIInterface, ResolvedStream, ResolvedTrace, Stream, TraceEntry, UnresolvedTrace
 from .model import Function, Instruction, InstructionLatency, CDFGEdge, BasicBlock
 from .model.function import Port
@@ -157,7 +157,7 @@ def write_trace_json(json_data: Dict, trace_path: Path):
 
 
 def write_unresolved_trace(trace: UnresolvedTrace):
-    trace_path = resolve_trace_path("trace", "unresolved_trace.json")
+    trace_path = resolve_path("trace", "unresolved_trace.json")
 
     json_data = {
         "byte_count": trace.byte_count,
@@ -173,7 +173,7 @@ def write_unresolved_trace(trace: UnresolvedTrace):
 
 
 def write_resolved_trace(trace: ResolvedTrace):
-    trace_path = resolve_trace_path("trace", "resolved_trace.json")
+    trace_path = resolve_path("trace", "resolved_trace.json")
     print(f"trace path: {trace_path}")
 
     params = trace.params
