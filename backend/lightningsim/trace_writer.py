@@ -1,8 +1,7 @@
 from pathlib import Path
 import os
 import json
-import sys
-from typing import Dict
+from typing import Any, Dict, Union
 
 from .writer_utils import resolve_path
 from .trace_file import AXIInterface, ResolvedStream, ResolvedTrace, Stream, TraceEntry, UnresolvedTrace
@@ -11,11 +10,11 @@ from .model.function import Port
 from .model.dataflow import Channel
 
 
-def axi_json_obj(axi_interface: AXIInterface) -> Dict:
+def axi_json_obj(axi_interface: AXIInterface) -> Dict[str, Union[str, int]]:
     return { "name": axi_interface.name, "address": axi_interface.address }
 
 
-def fifo_json_obj(resolved_stream: ResolvedStream) -> Dict:
+def fifo_json_obj(resolved_stream: ResolvedStream) -> Dict[str, Union[str, int]]:
     return {
         "display_name": resolved_stream.get_display_name(),
         "id": resolved_stream.id,
@@ -24,7 +23,7 @@ def fifo_json_obj(resolved_stream: ResolvedStream) -> Dict:
     }
 
 
-def operand_json_obj(operand: CDFGEdge) -> Dict:
+def operand_json_obj(operand: CDFGEdge) -> Dict[str, Union[int, bool]]:
     return {
         "id": operand.id,
         "type": operand.type,
@@ -63,7 +62,7 @@ def basic_block_json_obj(basic_block: BasicBlock):
     }
 
 
-def instruction_json_obj(inst: Instruction) -> Dict:
+def instruction_json_obj(inst: Instruction) -> Dict[str, Any]:
     inst.operands
     return {
         "bitwidth": inst.bitwidth,
@@ -77,7 +76,7 @@ def instruction_json_obj(inst: Instruction) -> Dict:
     }
 
 
-def inst_latency_json_obj(latency: InstructionLatency) -> Dict:
+def inst_latency_json_obj(latency: InstructionLatency) -> Dict[str, int]:
     return {
         "length": latency.length,
         "start": latency.start,
@@ -87,7 +86,7 @@ def inst_latency_json_obj(latency: InstructionLatency) -> Dict:
     }
 
 
-def port_json_obj(port: Port) -> Dict:
+def port_json_obj(port: Port) -> Dict[str, Union[int, str]]:
     return {
         "id": port.id,
         "interface_type": port.interface_type,
@@ -96,7 +95,7 @@ def port_json_obj(port: Port) -> Dict:
 
 
 # TODO Add more information to this
-def functions_json_obj(functions: Dict[str, Function]) -> Dict[str, str]:
+def functions_json_obj(functions: Dict[str, Function]) -> Dict[str, Any]:
     return {
         key: {
             "name": func.name,
@@ -117,30 +116,30 @@ def channel_depths_json_obj(channel_depths: Dict[Stream, int]):
     return { key.name: { "id": key.id, "address": key.address, "value": value } for key, value in channel_depths.items() }
 
 
-def derive_metadata(trace_entry: TraceEntry):
+def derive_metadata(trace_entry: TraceEntry): # type: ignore
     type = trace_entry.type
-    metadata = trace_entry.metadata
+    metadata = trace_entry.metadata # type: ignore
 
     if type in ("trace_bb", "loop_bb"):
-        return { "function": metadata.function, "basic_block": metadata.basic_block }
+        return { "function": metadata.function, "basic_block": metadata.basic_block } # type: ignore
     if type in ("fifo_read", "fifo_write"):
-        return { "fifo": { "address": metadata.fifo.address, "id": metadata.fifo.id, "name": metadata.fifo.name } }
+        return { "fifo": { "address": metadata.fifo.address, "id": metadata.fifo.id, "name": metadata.fifo.name } } # type: ignore
     if type in ("axi_readreq", "axi_writereq"):
-        return { "offset": metadata.offset, "increment": metadata.increment, "count": metadata.count, "interface": { "address": metadata.interface.address, "name": metadata.interface.name } }
+        return { "offset": metadata.offset, "increment": metadata.increment, "count": metadata.count, "interface": { "address": metadata.interface.address, "name": metadata.interface.name } } # type: ignore
     if type in ("axi_read", "axi_write", "axi_writeresp"):
-        return { "interface": { "address": metadata.interface.address, "name": metadata.interface.name } }
-    return { "name": metadata.name, "tripcount": metadata.tripcount }
+        return { "interface": { "address": metadata.interface.address, "name": metadata.interface.name } } # type: ignore
+    return { "name": metadata.name, "tripcount": metadata.tripcount } # type: ignore
 
 
 # TODO Add more information to this
-def trace_entry_json_obj(trace_entry: TraceEntry):
+def trace_entry_json_obj(trace_entry: TraceEntry): # type: ignore
     return {
         "type": trace_entry.type,
         "metadata": derive_metadata(trace_entry)
-    }
+    } # type: ignore
 
 
-def write_trace_json(json_data: Dict, trace_path: Path):
+def write_trace_json(json_data: Dict[str, Any], trace_path: Path):
     if os.path.exists(trace_path):
         print(f"Output path '{trace_path}' exists. Removing...")
         os.remove(trace_path)
@@ -157,7 +156,7 @@ def write_trace_json(json_data: Dict, trace_path: Path):
 def write_unresolved_trace(trace: UnresolvedTrace):
     trace_path = resolve_path("trace", "unresolved_trace.json")
 
-    json_data = {
+    json_data = { # type: ignore
         "byte_count": trace.byte_count,
         "line_count": trace.line_count,
         "is_ap_ctrl_chain": trace.is_ap_ctrl_chain,
@@ -167,7 +166,7 @@ def write_unresolved_trace(trace: UnresolvedTrace):
         "trace": [ trace_entry_json_obj(entry) for entry in trace.trace ]
     }
 
-    write_trace_json(json_data, trace_path)
+    write_trace_json(json_data, trace_path) # type: ignore
 
 
 def write_resolved_trace(trace: ResolvedTrace):
@@ -189,4 +188,3 @@ def write_resolved_trace(trace: ResolvedTrace):
     }
 
     write_trace_json(json_data, trace_path)
-
