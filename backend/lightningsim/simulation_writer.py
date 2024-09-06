@@ -10,7 +10,11 @@ from .simulator import Simulation
 
 def axi_generic_io_obj(axi_generic_ios: List[AxiGenericIo]):
     return [
-        { "range": generic_io.range, "time": generic_io.time } for generic_io in axi_generic_ios
+        {
+            "range_length": generic_io.range.length,
+            "range_offset": generic_io.range.offset,
+            "time": generic_io.time
+        } for generic_io in axi_generic_ios
     ]
 
 
