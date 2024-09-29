@@ -18,8 +18,9 @@ def axi_generic_io_obj(axi_generic_ios: List[AxiGenericIo]):
     ]
 
 
-def axi_io_json_obj(axi_interface_io: AxiInterfaceIo):
+def axi_io_json_obj(address: int, axi_interface_io: AxiInterfaceIo) -> Dict[str, Any]:
     return {
+        "address": address,
         "readreqs": axi_generic_io_obj(axi_interface_io.readreqs),
         "reads": axi_generic_io_obj(axi_interface_io.reads),
         "writereqs": axi_generic_io_obj(axi_interface_io.writereqs),
@@ -28,11 +29,11 @@ def axi_io_json_obj(axi_interface_io: AxiInterfaceIo):
     }
 
 
-def axi_json_obj(axi_io: Dict[AxiInterface, AxiInterfaceIo]) -> Dict[int, Any]:
-    return { key.address: axi_io_json_obj(value) for key, value in axi_io.items() }
+def axi_json_arr(axi_io: Dict[AxiInterface, AxiInterfaceIo]) -> List[Dict[str, Any]]:
+    return [ axi_io_json_obj(key.address, value) for key, value in axi_io.items() ]
 
 
-def fifo_json_obj(ifo_io: Dict[Fifo, FifoIo]):
+def fifo_json_obj(fifo_io: Dict[Fifo, FifoIo]):
     pass
 
 
@@ -56,13 +57,13 @@ def write_simulation(json_data: Dict[str, Any]):
 def write_actual_simulation(sim: Simulation):
     top_module: SimulatedModule = sim.top_module
 
-    json_data = {
+    json_data: Dict[str, Any] = {
         "top_module": {
             "name": top_module.name,
             "start": top_module.start,
             "end": top_module.end
         },
-        "axi_io": axi_json_obj(sim.axi_io),
+        "axi_io": axi_json_arr(sim.axi_io),
         "fifo_io": fifo_json_obj(sim.fifo_io)
     }
 
