@@ -65,6 +65,8 @@ pub struct AxiInterfaceIoNodes {
 #[derive(Clone)]
 pub struct AxiGenericIo {
     #[pyo3(get)]
+    pub delay: ClockCycle,
+    #[pyo3(get)]
     pub time: ClockCycle,
     #[pyo3(get)]
     pub range: AxiAddressRange,
@@ -95,6 +97,7 @@ impl AxiInterfaceIo {
                 .readreqs
                 .iter()
                 .map(|AxiGenericIoNode { node, range }| AxiGenericIo {
+                    delay: node.delay,
                     time: node.resolve(node_cycles),
                     range: *range,
                 })
@@ -103,6 +106,7 @@ impl AxiInterfaceIo {
                 .reads
                 .iter()
                 .map(|AxiGenericIoNode { node, range }| AxiGenericIo {
+                    delay: node.delay,
                     time: node.resolve(node_cycles),
                     range: *range,
                 })
@@ -111,6 +115,7 @@ impl AxiInterfaceIo {
                 .writereqs
                 .iter()
                 .map(|AxiGenericIoNode { node, range }| AxiGenericIo {
+                    delay: node.delay,
                     time: node.resolve(node_cycles),
                     range: *range,
                 })
@@ -119,6 +124,7 @@ impl AxiInterfaceIo {
                 .writes
                 .iter()
                 .map(|AxiGenericIoNode { node, range }| AxiGenericIo {
+                    delay: node.delay,
                     time: node.resolve(node_cycles),
                     range: *range,
                 })

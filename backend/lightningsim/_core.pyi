@@ -73,6 +73,7 @@ class AxiInterfaceIo:
     writeresps: list[int]
 
 class AxiGenericIo:
+    delay: int
     time: int
     range: AxiAddressRange
 

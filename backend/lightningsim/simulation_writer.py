@@ -13,6 +13,7 @@ def axi_generic_io_obj(axi_generic_ios: List[AxiGenericIo]):
         {
             "range_length": generic_io.range.length,
             "range_offset": generic_io.range.offset,
+            "delay": generic_io.delay,
             "time": generic_io.time
         } for generic_io in axi_generic_ios
     ]
