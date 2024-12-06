@@ -71,3 +71,5 @@ By default, LightningSim will wait for Vitis HLS to start its next C synthesis r
 You can also start simulation immediately by passing the `--skip-wait-for-synthesis` argument to the `lightningsim` command.
 
 All available command-line options can be viewed by running `lightningsim --help`.
+
+`lightningsim /pub/scratch/ebush/Projects/hbm-sim/extern/vitis_kernels/vector_addition/solution1/ --skip-wait-for-synthesis`
