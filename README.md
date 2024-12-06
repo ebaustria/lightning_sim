@@ -72,4 +72,8 @@ You can also start simulation immediately by passing the `--skip-wait-for-synthe
 
 All available command-line options can be viewed by running `lightningsim --help`.
 
-`lightningsim /pub/scratch/ebush/Projects/hbm-sim/extern/vitis_kernels/vector_addition/solution1/ --skip-wait-for-synthesis`
+
+```
+conda activate lightningsim_trace
+lightningsim /pub/scratch/ebush/Projects/hbm-sim/extern/vitis_kernels/vector_addition/solution1/ --skip-wait-for-synthesis
+```
