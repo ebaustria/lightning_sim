@@ -6,6 +6,7 @@ from time import time
 from typing import Callable, Dict, List, Mapping, Set, Tuple, TypeAlias, Union
 from ._core import SimulationBuilder, CompiledSimulation
 from .model import BasicBlock, CDFGRegion, Instruction, Function, Solution
+from .stack_writer import StackWriter
 
 SYNC_WORK_BATCH_DURATION = 1.0
 
@@ -341,6 +342,8 @@ async def resolve_trace(
     ap_ctrl_chain_top_port_count: int | None = None
     fifo_widths: Dict[int, int] = {}
 
+    stack_writer = StackWriter()
+
     def do_sync_work_batch(deadline=SYNC_WORK_BATCH_DURATION):
         nonlocal i, ap_ctrl_chain_top_port_count
         start_time = time()
@@ -442,6 +445,7 @@ async def resolve_trace(
                             entry.metadata,
                         )
                     elif entry.type == "axi_read":
+                        stack_writer.add_stack_entries("read", stack)
                         assert isinstance(entry.metadata, AXIIOMetadata)
                         builder.add_axi_read(
                             safe_offset,
@@ -662,6 +666,8 @@ async def resolve_trace(
 
             if time() - start_time >= deadline:
                 return False
+            
+        stack_writer.write_stack()
 
         i = len(trace)
         return True
