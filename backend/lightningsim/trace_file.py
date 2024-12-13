@@ -428,7 +428,7 @@ class StackWriter:
 
         os.makedirs(os.path.dirname(stack_path), exist_ok=True)
 
-        print(f"Writing new trace to output path '{stack_path}'.")
+        print(f"Writing new stack to output path '{stack_path}'.")
         with open(stack_path, "w+", encoding="utf-8") as f:
             json.dump(self.json_data, f, ensure_ascii=False, indent=4)
 
@@ -547,7 +547,7 @@ async def resolve_trace(
                             entry.metadata,
                         )
                     elif entry.type == "axi_read":
-                        stack_writer.add_stack_entries("read", stack)
+                        stack_writer.add_stack_entries("reads", stack)
                         assert isinstance(entry.metadata, AXIIOMetadata)
                         builder.add_axi_read(
                             safe_offset,
