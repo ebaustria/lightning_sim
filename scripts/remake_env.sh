@@ -9,7 +9,7 @@ if [ "$1" = "--remote" ]
 then
   pub_dir="/pub/scratch/ebush"
   full_conda_path="$pub_dir/$conda_script"
-  proj_root="$pub_dir/Projects/lightning_sim"
+  proj_root="$pub_dir/Projects/hbm-sim/extern/lightning_sim"
 fi
 
 local_chan=$proj_root/channel

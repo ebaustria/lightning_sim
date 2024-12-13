@@ -9,7 +9,7 @@ then
   pub_dir="/pub/scratch/ebush"
   conda_dir="$pub_dir/miniconda3"
   conda_script="$conda_dir/etc/profile.d/conda.sh"
-  proj_root="$pub_dir/Projects/lightning_sim"
+  proj_root="$pub_dir/Projects/hbm-sim/extern/lightning_sim"
 fi
 
 source "$conda_script"
