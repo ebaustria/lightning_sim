@@ -1,5 +1,6 @@
 import json
 import os
+import pprint
 from asyncio import Future, StreamReader, get_running_loop
 from bisect import bisect, insort
 from dataclasses import dataclass, field, replace
@@ -413,8 +414,10 @@ class StackWriter:
         }
 
     def add_stack_entries(self, key: str, stack: List[StackFrame]):
+        print("Adding stack entries to writer")
         for stack_frame in stack:
             stack_frame_obj = stack_frame_object(stack_frame) # type: ignore
+            pprint.pprint(stack_frame_obj) # type: ignore
             self.json_data[key].append(stack_frame_obj)
 
     def write_stack(self):
@@ -555,6 +558,7 @@ async def resolve_trace(
                             entry.metadata.interface.address,
                         )
                     elif entry.type == "axi_write":
+                        stack_writer.add_stack_entries("writes", stack)
                         assert isinstance(entry.metadata, AXIIOMetadata)
                         builder.add_axi_write(
                             safe_offset,
