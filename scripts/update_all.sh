@@ -1,6 +1,6 @@
 #!/bin/bash
 
-scripts_dir="$HOME/Projects/LightningSim/scripts"
+scripts_dir="$HOME/Projects/hbm-sim/extern/lightning_sim/scripts"
 
 if [ "$1" = "--remote" ]
 then

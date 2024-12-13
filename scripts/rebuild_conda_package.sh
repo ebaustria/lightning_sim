@@ -1,7 +1,7 @@
 #!/bin/bash
 
 conda_script="$HOME/miniconda3/etc/profile.d/conda.sh"
-proj_root="$HOME/Projects/LightningSim"
+proj_root="$HOME/Projects/hbm-sim/extern/lightning_sim"
 
 if [ "$1" = "--remote" ]
 then
