@@ -6,6 +6,7 @@ class SimulationBuilder:
     def add_fifo_read(self, safe_offset: int, stage: int, fifo_id: int): ...
     def add_axi_readreq(
         self,
+        module: str,
         safe_offset: int,
         stage: int,
         interface_address: int,
@@ -13,13 +14,14 @@ class SimulationBuilder:
     ): ...
     def add_axi_writereq(
         self,
+        module: str,
         safe_offset: int,
         stage: int,
         interface_address: int,
         request: AXIRequestMetadata,
     ): ...
-    def add_axi_read(self, safe_offset: int, stage: int, interface_address: int): ...
-    def add_axi_write(self, safe_offset: int, stage: int, interface_address: int): ...
+    def add_axi_read(self, module: str, safe_offset: int, stage: int, interface_address: int): ...
+    def add_axi_write(self, module: str, safe_offset: int, stage: int, interface_address: int): ...
     def add_axi_writeresp(
         self, safe_offset: int, stage: int, interface_address: int
     ): ...
@@ -76,6 +78,7 @@ class AxiGenericIo:
     delay: int
     time: int
     range: AxiAddressRange
+    module: str
 
 class AxiAddressRange:
     offset: int

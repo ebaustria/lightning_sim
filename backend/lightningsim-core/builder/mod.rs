@@ -106,6 +106,7 @@ impl SimulationBuilder {
 
     pub fn add_axi_readreq(
         &mut self,
+        module: String,
         safe_offset: SimulationStage,
         stage: SimulationStage,
         interface_address: AxiAddress,
@@ -116,12 +117,13 @@ impl SimulationBuilder {
                 address: interface_address,
             };
             self.builders
-                .add_axi_readreq(frame, safe_offset, stage, interface, &request);
+                .add_axi_readreq(module, frame, safe_offset, stage, interface, &request);
         }
     }
 
     pub fn add_axi_writereq(
         &mut self,
+        module: String,
         safe_offset: SimulationStage,
         stage: SimulationStage,
         interface_address: AxiAddress,
@@ -132,12 +134,13 @@ impl SimulationBuilder {
                 address: interface_address,
             };
             self.builders
-                .add_axi_writereq(frame, safe_offset, stage, interface, &request);
+                .add_axi_writereq(module, frame, safe_offset, stage, interface, &request);
         }
     }
 
     pub fn add_axi_read(
         &mut self,
+        module: String,
         safe_offset: SimulationStage,
         stage: SimulationStage,
         interface_address: AxiAddress,
@@ -147,12 +150,13 @@ impl SimulationBuilder {
                 address: interface_address,
             };
             self.builders
-                .add_axi_read(frame, safe_offset, stage, interface);
+                .add_axi_read(module, frame, safe_offset, stage, interface);
         }
     }
 
     pub fn add_axi_write(
         &mut self,
+        module: String,
         safe_offset: SimulationStage,
         stage: SimulationStage,
         interface_address: AxiAddress,
@@ -162,7 +166,7 @@ impl SimulationBuilder {
                 address: interface_address,
             };
             self.builders
-                .add_axi_write(frame, safe_offset, stage, interface);
+                .add_axi_write(module, frame, safe_offset, stage, interface);
         }
     }
 
@@ -275,6 +279,7 @@ impl SimulationComponentBuilders {
 
     fn add_axi_readreq(
         &mut self,
+        module: String,
         frame: &mut StackFrame,
         safe_offset: SimulationStage,
         stage: SimulationStage,
@@ -298,6 +303,7 @@ impl SimulationComponentBuilders {
             safe_offset,
             stage,
             Event::AxiReadRequest {
+                module,
                 interface,
                 index,
                 read_edge,
@@ -308,6 +314,7 @@ impl SimulationComponentBuilders {
 
     fn add_axi_writereq(
         &mut self,
+        module: String,
         frame: &mut StackFrame,
         safe_offset: SimulationStage,
         stage: SimulationStage,
@@ -323,12 +330,13 @@ impl SimulationComponentBuilders {
             frame,
             safe_offset,
             stage,
-            Event::AxiWriteRequest { interface, index },
+            Event::AxiWriteRequest { module, interface, index },
         );
     }
 
     fn add_axi_read(
         &mut self,
+        module: String,
         frame: &mut StackFrame,
         safe_offset: SimulationStage,
         stage: SimulationStage,
@@ -344,6 +352,7 @@ impl SimulationComponentBuilders {
             safe_offset,
             stage,
             Event::AxiRead {
+                module,
                 interface,
                 index,
                 first_read,
@@ -354,6 +363,7 @@ impl SimulationComponentBuilders {
 
     fn add_axi_write(
         &mut self,
+        module: String,
         frame: &mut StackFrame,
         safe_offset: SimulationStage,
         stage: SimulationStage,
@@ -375,6 +385,7 @@ impl SimulationComponentBuilders {
             safe_offset,
             stage,
             Event::AxiWrite {
+                module,
                 interface,
                 index,
                 writeresp_edge,
@@ -540,6 +551,7 @@ impl SimulationComponentBuilders {
                 }
             }
             Event::AxiReadRequest {
+                module,
                 interface,
                 index,
                 read_edge,
@@ -548,17 +560,18 @@ impl SimulationComponentBuilders {
                 self.axi
                     .get_mut(&interface)
                     .unwrap()
-                    .update_readreq(index, node);
+                    .update_readreq(index, node, module);
                 self.edges.update_source(read_edge, node);
             }
             Event::AxiRead {
+                module,
                 interface,
                 index,
                 first_read,
                 rctl_out_edge,
             } => {
                 let axi_builder = self.axi.get_mut(&interface).unwrap();
-                axi_builder.update_read(index, node);
+                axi_builder.update_read(index, node, module);
                 if let Some(rctl_out_edge) = rctl_out_edge {
                     self.edges.update_source(rctl_out_edge, node);
                 }
@@ -571,13 +584,14 @@ impl SimulationComponentBuilders {
                     self.edges.push_destination(rctl_in_edge);
                 }
             }
-            Event::AxiWriteRequest { interface, index } => {
+            Event::AxiWriteRequest { module, interface, index } => {
                 self.axi
                     .get_mut(&interface)
                     .unwrap()
-                    .update_writereq(index, node);
+                    .update_writereq(index, node, module);
             }
             Event::AxiWrite {
+                module,
                 interface,
                 index,
                 writeresp_edge,
@@ -585,7 +599,7 @@ impl SimulationComponentBuilders {
                 self.axi
                     .get_mut(&interface)
                     .unwrap()
-                    .update_write(index, node);
+                    .update_write(index, node, module);
                 if let Some(writeresp_edge) = writeresp_edge {
                     self.edges.update_source(writeresp_edge, node);
                 }

@@ -49,6 +49,7 @@ impl ops::Add<AxiAddress> for AxiAddressRange {
 #[derive(Clone, Copy)]
 pub struct AxiGenericIoNode {
     pub(crate) node: NodeWithDelay,
+    pub(crate) module: String,
     pub(crate) range: AxiAddressRange,
 }
 
@@ -70,6 +71,8 @@ pub struct AxiGenericIo {
     pub time: ClockCycle,
     #[pyo3(get)]
     pub range: AxiAddressRange,
+    #[pyo3(get)]
+    pub module: String,
 }
 
 #[pyclass]
@@ -96,37 +99,41 @@ impl AxiInterfaceIo {
             readreqs: axi_io_nodes
                 .readreqs
                 .iter()
-                .map(|AxiGenericIoNode { node, range }| AxiGenericIo {
+                .map(|AxiGenericIoNode { node, module, range }| AxiGenericIo {
                     delay: node.delay,
                     time: node.resolve(node_cycles),
                     range: *range,
+                    module: *module,
                 })
                 .collect(),
             reads: axi_io_nodes
                 .reads
                 .iter()
-                .map(|AxiGenericIoNode { node, range }| AxiGenericIo {
+                .map(|AxiGenericIoNode { node, module, range }| AxiGenericIo {
                     delay: node.delay,
                     time: node.resolve(node_cycles),
                     range: *range,
+                    module: *module,
                 })
                 .collect(),
             writereqs: axi_io_nodes
                 .writereqs
                 .iter()
-                .map(|AxiGenericIoNode { node, range }| AxiGenericIo {
+                .map(|AxiGenericIoNode { node, module, range }| AxiGenericIo {
                     delay: node.delay,
                     time: node.resolve(node_cycles),
                     range: *range,
+                    module: *module,
                 })
                 .collect(),
             writes: axi_io_nodes
                 .writes
                 .iter()
-                .map(|AxiGenericIoNode { node, range }| AxiGenericIo {
+                .map(|AxiGenericIoNode { node, module, range }| AxiGenericIo {
                     delay: node.delay,
                     time: node.resolve(node_cycles),
                     range: *range,
+                    module: *module,
                 })
                 .collect(),
             writeresps: axi_io_nodes

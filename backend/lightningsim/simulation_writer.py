@@ -8,15 +8,16 @@ from .writer_utils import resolve_path
 from .simulator import Simulation
 
 
-def axi_generic_io_obj(axi_generic_ios: List[AxiGenericIo]):
+def axi_generic_io_obj(axi_generic_ios: List[AxiGenericIo]): # type: ignore
     return [
         {
             "range_length": generic_io.range.length,
             "range_offset": generic_io.range.offset,
             "delay": generic_io.delay,
-            "time": generic_io.time
+            "time": generic_io.time,
+            "module": generic_io.module
         } for generic_io in axi_generic_ios
-    ]
+    ] # type: ignore
 
 
 def axi_io_json_obj(address: int, axi_interface_io: AxiInterfaceIo) -> Dict[str, Any]:

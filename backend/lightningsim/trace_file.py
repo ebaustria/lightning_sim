@@ -406,6 +406,17 @@ def stack_frame_object(stack_frame: StackFrame): # type: ignore
         "latest_static_stage": stack_frame.latest_static_stage
     } # type: ignore
 
+
+def get_module_for_operation(stack: List[StackFrame]) -> str:
+    module: str = ""
+    frame: StackFrame = stack[-1]
+
+    if frame.current_block is not None:
+        module = frame.current_block.basic_block.parent.name
+
+    return module
+
+
 class StackWriter:
     def __init__(self):
         self.json_data: Dict[str, List[Any]] = {
@@ -534,33 +545,41 @@ async def resolve_trace(
                             entry.metadata.fifo.id,
                         )
                     elif entry.type == "axi_readreq":
+                        module = get_module_for_operation(stack)
                         assert isinstance(entry.metadata, AXIRequestMetadata)
                         builder.add_axi_readreq(
+                            module,
                             safe_offset,
                             start_stage,
                             entry.metadata.interface.address,
                             entry.metadata,
                         )
                     elif entry.type == "axi_writereq":
+                        module = get_module_for_operation(stack)
                         assert isinstance(entry.metadata, AXIRequestMetadata)
                         builder.add_axi_writereq(
+                            module,
                             safe_offset,
                             start_stage,
                             entry.metadata.interface.address,
                             entry.metadata,
                         )
                     elif entry.type == "axi_read":
+                        module = get_module_for_operation(stack)
                         stack_writer.add_stack_entries("reads", stack)
                         assert isinstance(entry.metadata, AXIIOMetadata)
                         builder.add_axi_read(
+                            module,
                             safe_offset,
                             end_stage,
                             entry.metadata.interface.address,
                         )
                     elif entry.type == "axi_write":
+                        module = get_module_for_operation(stack)
                         stack_writer.add_stack_entries("writes", stack)
                         assert isinstance(entry.metadata, AXIIOMetadata)
                         builder.add_axi_write(
+                            module,
                             safe_offset,
                             end_stage,
                             entry.metadata.interface.address,
