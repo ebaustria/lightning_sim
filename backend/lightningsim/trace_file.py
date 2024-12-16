@@ -10,6 +10,7 @@ from typing import Callable, Dict, List, Mapping, Set, Tuple, TypeAlias, Union, 
 from ._core import SimulationBuilder, CompiledSimulation
 from .writer_utils import resolve_path
 from .model import BasicBlock, CDFGRegion, Instruction, Function, Solution
+from .module_data_struct import ModuleDataStruct
 
 SYNC_WORK_BATCH_DURATION = 1.0
 
@@ -447,6 +448,7 @@ class StackWriter:
             json.dump(self.json_data, f, ensure_ascii=False, indent=4)
 
 async def resolve_trace(
+    mod_data_struct: ModuleDataStruct,
     trace: UnresolvedTrace,
     progress_callback: Callable[[float], None] = lambda progress: None,
 ):
@@ -546,9 +548,12 @@ async def resolve_trace(
                         )
                     elif entry.type == "axi_readreq":
                         module = get_module_for_operation(stack)
+                        mod_data_struct.add_module_if_not_present(module)
+                        mod_id = mod_data_struct.get_module_id_if_present(module)
+
                         assert isinstance(entry.metadata, AXIRequestMetadata)
                         builder.add_axi_readreq(
-                            module,
+                            mod_id,
                             safe_offset,
                             start_stage,
                             entry.metadata.interface.address,
@@ -556,9 +561,12 @@ async def resolve_trace(
                         )
                     elif entry.type == "axi_writereq":
                         module = get_module_for_operation(stack)
+                        mod_data_struct.add_module_if_not_present(module)
+                        mod_id = mod_data_struct.get_module_id_if_present(module)
+
                         assert isinstance(entry.metadata, AXIRequestMetadata)
                         builder.add_axi_writereq(
-                            module,
+                            mod_id,
                             safe_offset,
                             start_stage,
                             entry.metadata.interface.address,
@@ -566,20 +574,26 @@ async def resolve_trace(
                         )
                     elif entry.type == "axi_read":
                         module = get_module_for_operation(stack)
+                        mod_data_struct.add_module_if_not_present(module)
+                        mod_id = mod_data_struct.get_module_id_if_present(module)
                         stack_writer.add_stack_entries("reads", stack)
+
                         assert isinstance(entry.metadata, AXIIOMetadata)
                         builder.add_axi_read(
-                            module,
+                            mod_id,
                             safe_offset,
                             end_stage,
                             entry.metadata.interface.address,
                         )
                     elif entry.type == "axi_write":
                         module = get_module_for_operation(stack)
+                        mod_data_struct.add_module_if_not_present(module)
+                        mod_id = mod_data_struct.get_module_id_if_present(module)
                         stack_writer.add_stack_entries("writes", stack)
+
                         assert isinstance(entry.metadata, AXIIOMetadata)
                         builder.add_axi_write(
-                            module,
+                            mod_id,
                             safe_offset,
                             end_stage,
                             entry.metadata.interface.address,

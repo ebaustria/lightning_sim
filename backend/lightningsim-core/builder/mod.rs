@@ -106,7 +106,7 @@ impl SimulationBuilder {
 
     pub fn add_axi_readreq(
         &mut self,
-        module: String,
+        mod_id: u8,
         safe_offset: SimulationStage,
         stage: SimulationStage,
         interface_address: AxiAddress,
@@ -117,13 +117,13 @@ impl SimulationBuilder {
                 address: interface_address,
             };
             self.builders
-                .add_axi_readreq(module, frame, safe_offset, stage, interface, &request);
+                .add_axi_readreq(mod_id, frame, safe_offset, stage, interface, &request);
         }
     }
 
     pub fn add_axi_writereq(
         &mut self,
-        module: String,
+        mod_id: u8,
         safe_offset: SimulationStage,
         stage: SimulationStage,
         interface_address: AxiAddress,
@@ -134,13 +134,13 @@ impl SimulationBuilder {
                 address: interface_address,
             };
             self.builders
-                .add_axi_writereq(module, frame, safe_offset, stage, interface, &request);
+                .add_axi_writereq(mod_id, frame, safe_offset, stage, interface, &request);
         }
     }
 
     pub fn add_axi_read(
         &mut self,
-        module: String,
+        mod_id: u8,
         safe_offset: SimulationStage,
         stage: SimulationStage,
         interface_address: AxiAddress,
@@ -150,13 +150,13 @@ impl SimulationBuilder {
                 address: interface_address,
             };
             self.builders
-                .add_axi_read(module, frame, safe_offset, stage, interface);
+                .add_axi_read(mod_id, frame, safe_offset, stage, interface);
         }
     }
 
     pub fn add_axi_write(
         &mut self,
-        module: String,
+        mod_id: u8,
         safe_offset: SimulationStage,
         stage: SimulationStage,
         interface_address: AxiAddress,
@@ -166,7 +166,7 @@ impl SimulationBuilder {
                 address: interface_address,
             };
             self.builders
-                .add_axi_write(module, frame, safe_offset, stage, interface);
+                .add_axi_write(mod_id, frame, safe_offset, stage, interface);
         }
     }
 
@@ -279,7 +279,7 @@ impl SimulationComponentBuilders {
 
     fn add_axi_readreq(
         &mut self,
-        module: String,
+        mod_id: u8,
         frame: &mut StackFrame,
         safe_offset: SimulationStage,
         stage: SimulationStage,
@@ -303,7 +303,7 @@ impl SimulationComponentBuilders {
             safe_offset,
             stage,
             Event::AxiReadRequest {
-                module,
+                mod_id,
                 interface,
                 index,
                 read_edge,
@@ -314,7 +314,7 @@ impl SimulationComponentBuilders {
 
     fn add_axi_writereq(
         &mut self,
-        module: String,
+        mod_id: u8,
         frame: &mut StackFrame,
         safe_offset: SimulationStage,
         stage: SimulationStage,
@@ -330,13 +330,13 @@ impl SimulationComponentBuilders {
             frame,
             safe_offset,
             stage,
-            Event::AxiWriteRequest { module, interface, index },
+            Event::AxiWriteRequest { mod_id, interface, index },
         );
     }
 
     fn add_axi_read(
         &mut self,
-        module: String,
+        mod_id: u8,
         frame: &mut StackFrame,
         safe_offset: SimulationStage,
         stage: SimulationStage,
@@ -352,7 +352,7 @@ impl SimulationComponentBuilders {
             safe_offset,
             stage,
             Event::AxiRead {
-                module,
+                mod_id,
                 interface,
                 index,
                 first_read,
@@ -363,7 +363,7 @@ impl SimulationComponentBuilders {
 
     fn add_axi_write(
         &mut self,
-        module: String,
+        mod_id: u8,
         frame: &mut StackFrame,
         safe_offset: SimulationStage,
         stage: SimulationStage,
@@ -385,7 +385,7 @@ impl SimulationComponentBuilders {
             safe_offset,
             stage,
             Event::AxiWrite {
-                module,
+                mod_id,
                 interface,
                 index,
                 writeresp_edge,
@@ -551,7 +551,7 @@ impl SimulationComponentBuilders {
                 }
             }
             Event::AxiReadRequest {
-                module,
+                mod_id,
                 interface,
                 index,
                 read_edge,
@@ -560,18 +560,18 @@ impl SimulationComponentBuilders {
                 self.axi
                     .get_mut(&interface)
                     .unwrap()
-                    .update_readreq(index, node, module);
+                    .update_readreq(index, node, mod_id);
                 self.edges.update_source(read_edge, node);
             }
             Event::AxiRead {
-                module,
+                mod_id,
                 interface,
                 index,
                 first_read,
                 rctl_out_edge,
             } => {
                 let axi_builder = self.axi.get_mut(&interface).unwrap();
-                axi_builder.update_read(index, node, module);
+                axi_builder.update_read(index, node, mod_id);
                 if let Some(rctl_out_edge) = rctl_out_edge {
                     self.edges.update_source(rctl_out_edge, node);
                 }
@@ -584,14 +584,14 @@ impl SimulationComponentBuilders {
                     self.edges.push_destination(rctl_in_edge);
                 }
             }
-            Event::AxiWriteRequest { module, interface, index } => {
+            Event::AxiWriteRequest { mod_id, interface, index } => {
                 self.axi
                     .get_mut(&interface)
                     .unwrap()
-                    .update_writereq(index, node, module);
+                    .update_writereq(index, node, mod_id);
             }
             Event::AxiWrite {
-                module,
+                mod_id,
                 interface,
                 index,
                 writeresp_edge,
@@ -599,7 +599,7 @@ impl SimulationComponentBuilders {
                 self.axi
                     .get_mut(&interface)
                     .unwrap()
-                    .update_write(index, node, module);
+                    .update_write(index, node, mod_id);
                 if let Some(writeresp_edge) = writeresp_edge {
                     self.edges.update_source(writeresp_edge, node);
                 }

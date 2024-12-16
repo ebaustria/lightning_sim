@@ -49,7 +49,7 @@ impl ops::Add<AxiAddress> for AxiAddressRange {
 #[derive(Clone, Copy)]
 pub struct AxiGenericIoNode {
     pub(crate) node: NodeWithDelay,
-    pub(crate) module: String,
+    pub(crate) mod_id: u8,
     pub(crate) range: AxiAddressRange,
 }
 
@@ -72,7 +72,7 @@ pub struct AxiGenericIo {
     #[pyo3(get)]
     pub range: AxiAddressRange,
     #[pyo3(get)]
-    pub module: String,
+    pub mod_id: u8,
 }
 
 #[pyclass]
@@ -99,41 +99,41 @@ impl AxiInterfaceIo {
             readreqs: axi_io_nodes
                 .readreqs
                 .iter()
-                .map(|AxiGenericIoNode { node, module, range }| AxiGenericIo {
+                .map(|AxiGenericIoNode { node, mod_id, range }| AxiGenericIo {
                     delay: node.delay,
                     time: node.resolve(node_cycles),
                     range: *range,
-                    module: *module,
+                    mod_id: *mod_id,
                 })
                 .collect(),
             reads: axi_io_nodes
                 .reads
                 .iter()
-                .map(|AxiGenericIoNode { node, module, range }| AxiGenericIo {
+                .map(|AxiGenericIoNode { node, mod_id, range }| AxiGenericIo {
                     delay: node.delay,
                     time: node.resolve(node_cycles),
                     range: *range,
-                    module: *module,
+                    mod_id: *mod_id,
                 })
                 .collect(),
             writereqs: axi_io_nodes
                 .writereqs
                 .iter()
-                .map(|AxiGenericIoNode { node, module, range }| AxiGenericIo {
+                .map(|AxiGenericIoNode { node, mod_id, range }| AxiGenericIo {
                     delay: node.delay,
                     time: node.resolve(node_cycles),
                     range: *range,
-                    module: *module,
+                    mod_id: *mod_id,
                 })
                 .collect(),
             writes: axi_io_nodes
                 .writes
                 .iter()
-                .map(|AxiGenericIoNode { node, module, range }| AxiGenericIo {
+                .map(|AxiGenericIoNode { node, mod_id, range }| AxiGenericIo {
                     delay: node.delay,
                     time: node.resolve(node_cycles),
                     range: *range,
-                    module: *module,
+                    mod_id: *mod_id,
                 })
                 .collect(),
             writeresps: axi_io_nodes

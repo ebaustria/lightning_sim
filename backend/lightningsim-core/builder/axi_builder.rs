@@ -21,7 +21,7 @@ pub struct AxiBuilder {
     writes: Vec<AxiGenericIoOptionalNode>,
 
     /// The builder for [AxiInterfaceIoNodes::writeresps].
-    // TODO Should I add module to this field too?
+    // TODO Should I add mod_id to this field too?
     writeresps: Vec<Option<NodeWithDelay>>,
 
     first_read: Option<FirstReadData>,
@@ -37,7 +37,7 @@ pub struct AxiBuilder {
 #[derive(Clone, Copy)]
 struct AxiGenericIoOptionalNode {
     node: Option<NodeWithDelay>,
-    module: Option<String>,
+    mod_id: Option<u8>,
     range: AxiAddressRange,
 }
 
@@ -123,7 +123,7 @@ impl AxiBuilder {
         let range = request.range();
         let index = self.readreqs.len();
         self.readreqs
-            .push(AxiGenericIoOptionalNode { node: None, module: None, range });
+            .push(AxiGenericIoOptionalNode { node: None, mod_id: None, range });
 
         self.current_read = request.front();
         self.first_read = Some(FirstReadData {
@@ -147,7 +147,7 @@ impl AxiBuilder {
         let range = request.range();
         let index = self.writereqs.len();
         self.writereqs
-            .push(AxiGenericIoOptionalNode { node: None, module: None, range });
+            .push(AxiGenericIoOptionalNode { node: None, mod_id: None, range });
 
         self.current_write = request.front();
         self.writereq_writes_remaining = request.count;
@@ -161,7 +161,7 @@ impl AxiBuilder {
 
         let index = self.reads.len();
         self.reads
-            .push(AxiGenericIoOptionalNode { node: None, module: None, range });
+            .push(AxiGenericIoOptionalNode { node: None, mod_id: None, range });
 
         self.readreq_reads_remaining -= 1;
         let is_last_of_readreq = self.readreq_reads_remaining == 0;
@@ -181,7 +181,7 @@ impl AxiBuilder {
 
         let index = self.writes.len();
         self.writes
-            .push(AxiGenericIoOptionalNode { node: None, module: None, range });
+            .push(AxiGenericIoOptionalNode { node: None, mod_id: None, range });
 
         self.writereq_writes_remaining -= 1;
         let is_last_of_writereq = self.writereq_writes_remaining == 0;
@@ -206,32 +206,32 @@ impl AxiBuilder {
         }
     }
 
-    pub fn update_readreq(&mut self, index: usize, node: NodeWithDelay, module: String) {
+    pub fn update_readreq(&mut self, index: usize, node: NodeWithDelay, mod_id: u8) {
         debug_assert!(self.readreqs[index].node.is_none());
-        debug_assert!(self.readreqs[index].module.is_none());
+        debug_assert!(self.readreqs[index].mod_id.is_none());
         self.readreqs[index].node = Some(node);
-        self.readreqs[index].module = Some(module);
+        self.readreqs[index].mod_id = Some(mod_id);
     }
 
-    pub fn update_writereq(&mut self, index: usize, node: NodeWithDelay, module: String) {
+    pub fn update_writereq(&mut self, index: usize, node: NodeWithDelay, mod_id: u8) {
         debug_assert!(self.writereqs[index].node.is_none());
-        debug_assert!(self.writereqs[index].module.is_none());
+        debug_assert!(self.writereqs[index].mod_id.is_none());
         self.writereqs[index].node = Some(node);
-        self.writereqs[index].module = Some(module);
+        self.writereqs[index].mod_id = Some(mod_id);
     }
 
-    pub fn update_read(&mut self, index: usize, node: NodeWithDelay, module: String) {
+    pub fn update_read(&mut self, index: usize, node: NodeWithDelay, mod_id: u8) {
         debug_assert!(self.reads[index].node.is_none());
-        debug_assert!(self.reads[index].module.is_none());
+        debug_assert!(self.reads[index].mod_id.is_none());
         self.reads[index].node = Some(node);
-        self.reads[index].module = Some(module);
+        self.reads[index].mod_id = Some(mod_id);
     }
 
-    pub fn update_write(&mut self, index: usize, node: NodeWithDelay, module: String) {
+    pub fn update_write(&mut self, index: usize, node: NodeWithDelay, mod_id: u8) {
         debug_assert!(self.writes[index].node.is_none());
-        debug_assert!(self.writes[index].module.is_none());
+        debug_assert!(self.writes[index].mod_id.is_none());
         self.writes[index].node = Some(node);
-        self.writes[index].module = Some(module);
+        self.writes[index].mod_id = Some(mod_id);
     }
 
     pub fn update_writeresp(&mut self, index: usize, node: NodeWithDelay) {
@@ -291,10 +291,14 @@ impl TryFrom<AxiBuilder> for AxiInterfaceIoNodes {
 
 impl From<AxiGenericIoOptionalNode> for Option<AxiGenericIoNode> {
     fn from(value: AxiGenericIoOptionalNode) -> Self {
-        value.node.map(|node| AxiGenericIoNode {
-            node,
-            module: value.module,
-            range: value.range,
+        value.node.and_then(|node| {
+            value.mod_id.map(|mod_id| {
+                AxiGenericIoNode {
+                    node,
+                    mod_id,
+                    range: value.range,
+                }
+            })
         })
     }
 }

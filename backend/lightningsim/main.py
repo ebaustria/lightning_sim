@@ -18,6 +18,7 @@ from .runner import CompletedProcess, Runner, RunnerStep, Step
 from .simulator import Simulation, simulate
 from .trace_file import ResolvedStream, ResolvedTrace, SimulationParameters
 from .simulation_writer import write_actual_simulation
+from .module_data_struct import ModuleDataStruct
 
 
 DEFAULT_PORT_MIN = 8080
@@ -61,6 +62,7 @@ class Server:
         self.simulation_actual: Simulation | None = None
         self.simulate_optimal_task: Task | None = None
         self.simulation_optimal: Simulation | None = None
+        self.mod_data_struct = ModuleDataStruct()
         self.sio = socketio.AsyncServer(async_mode="asgi", cors_allowed_origins="*")
         self.app = socketio.ASGIApp(
             self.sio,
@@ -290,7 +292,7 @@ class Server:
                     for task in pending:
                         task.cancel()
 
-            self.trace = await runner.run()
+            self.trace = await runner.run(self.mod_data_struct)
         except Exception as e:
             return False
 
@@ -306,7 +308,7 @@ class Server:
             try:
                 with self.steps[GlobalStep.RUNNING_SIMULATION_ACTUAL]:
                     self.simulation_actual = await simulate(self.trace)
-                    write_actual_simulation(self.simulation_actual)
+                    write_actual_simulation(self.simulation_actual, self.mod_data_struct)
             except Exception:
                 self.simulation_actual = None
                 return False

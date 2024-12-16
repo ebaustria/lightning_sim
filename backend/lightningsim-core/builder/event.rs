@@ -58,7 +58,7 @@ pub enum Event {
         raw_edge: IncompleteEdgeKey,
     },
     AxiReadRequest {
-        module: String,
+        mod_id: u8,
         interface: AxiInterface,
         index: usize,
 
@@ -71,7 +71,7 @@ pub enum Event {
         rctl_txn: RctlTransaction,
     },
     AxiRead {
-        module: String,
+        mod_id: u8,
         interface: AxiInterface,
         index: usize,
         first_read: Option<FirstReadData>,
@@ -84,12 +84,12 @@ pub enum Event {
         rctl_out_edge: Option<IncompleteEdgeKey>,
     },
     AxiWriteRequest {
-        module: String,
+        mod_id: u8,
         interface: AxiInterface,
         index: usize,
     },
     AxiWrite {
-        module: String,
+        mod_id: u8,
         interface: AxiInterface,
         index: usize,
 
