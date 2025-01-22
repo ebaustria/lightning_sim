@@ -75,5 +75,6 @@ All available command-line options can be viewed by running `lightningsim --help
 
 ```
 conda activate lightningsim_trace
-lightningsim /pub/scratch/ebush/Projects/hbm-sim/extern/vitis_kernels/vector_addition/solution1/ --skip-wait-for-synthesis
+lightningsim /pub/scratch/ebush/Projects/hbm-sim/extern/vitis_kernels/vector_addition/solution1/ --skip-wait-for-synthesis --debug
+lightningsim /pub/scratch/ebush/Projects/hbm-sim/extern/vitis_kernels/convolution/solution1/ --skip-wait-for-synthesis --debug
 ```
