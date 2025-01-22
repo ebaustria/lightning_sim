@@ -429,7 +429,6 @@ class StackWriter:
         print("Adding stack entries to writer")
         for stack_frame in stack:
             stack_frame_obj = stack_frame_object(stack_frame) # type: ignore
-            pprint.pprint(stack_frame_obj) # type: ignore
             self.json_data[key].append(stack_frame_obj)
 
     def write_stack(self):
