@@ -86,6 +86,14 @@ FUNCTION_TEMPLATES = [
         template=Template((TEMPLATE_DIR / "fifo.ll.jinja").read_text()),
     ),
     FunctionTemplate(
+        input=re.compile(r"_autotb_Fifo(Read|Write)_float$"),
+        output="fifo_{T}.ll",
+        mapper=lambda groupdict: {
+            "T": "float"
+        },
+        template=Template((TEMPLATE_DIR / "fifo_float.ll.jinja").read_text()),
+    ),
+    FunctionTemplate(
         input=re.compile(
             r"_ssdm_op_(Read|Write|ReadReq|WriteReq|WriteResp).m_axi.(?P<name>\w*i(?P<N>\d+)\w*)"
         ),
