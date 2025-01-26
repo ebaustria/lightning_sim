@@ -41,7 +41,8 @@ def fifo_json_obj(fifo_io: Dict[Fifo, FifoIo]):
 
 
 def write_simulation(json_data: Dict[str, Any]):
-    sim_path: Path = resolve_path("simulation", "actual_simulation.json")
+    top_module: str = json_data["top_module"]["name"]
+    sim_path: Path = resolve_path("simulation", f"{top_module}/actual_simulation.json")
     print(f"trace path: {sim_path}")
 
     if os.path.exists(sim_path):
