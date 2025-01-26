@@ -12,9 +12,9 @@ traces_vadd="$lightningsim_dir/trace/$vadd"
 traces_matmul="$lightningsim_dir/trace/$matmul"
 
 move_file () {
-    if [ -f $1 ];
+    if [ -f "$1" ];
     then
-        mv $1 $2
+        mv "$1" "$2"
     else
         echo "File $1 could not be found. Skipping..."
     fi
