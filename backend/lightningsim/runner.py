@@ -89,7 +89,8 @@ FUNCTION_TEMPLATES = [
         input=re.compile(r"_autotb_Fifo(Read|Write)_float$"),
         output="fifo_{T}.ll",
         mapper=lambda groupdict: {
-            "T": "float"
+            "N": 32,
+            "T": "float",
         },
         template=Template((TEMPLATE_DIR / "fifo_float.ll.jinja").read_text()),
     ),
