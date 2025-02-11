@@ -41,6 +41,7 @@ from .module_data_struct import ModuleDataStruct
 
 CONDA_PREFIX = Path(r"""/opt/anaconda1anaconda2anaconda3""")
 LLVM_ROOT = CONDA_PREFIX / "share/lightningsim/llvm"
+SYSTEMC_ROOT = CONDA_PREFIX / "share/lightningsim/systemc"
 TEMPLATE_DIR = CONDA_PREFIX / "share/lightningsim/templates"
 CONDA_LD_LIBRARY_PATH = CONDA_PREFIX / "lib"
 
@@ -413,6 +414,8 @@ class Runner:
                                 xilinx_hls / "include",
                                 "-I",
                                 xilinx_hls / "lnx64/tools/systemc/include",
+                                "-I",
+                                SYSTEMC_ROOT / "include",
                                 "-c",
                                 mapper_input_path,
                                 "-g",
@@ -502,9 +505,11 @@ class Runner:
                             "-L",
                             TEMPLATE_DIR,
                             "-llightningsimrt",
+                            "-pthread",
                             "-g",
                             "-O3",
                             "-flto",
+                            SYSTEMC_ROOT / "lib-linux64" / "libsystemc.a",
                         )
                     )
                     link_testbench = await run(

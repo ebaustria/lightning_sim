@@ -1,6 +1,6 @@
 package:
   name: lightningsim_trace
-  version: "0.2.2.1"
+  version: "0.2.3"
 
 source:
   path: ..
@@ -17,7 +17,6 @@ requirements:
   build:
     - {{ compiler('cxx') }}
     - ccache=4
-    - clang=15.0.5
     - cmake=3
     - ninja=1
     - nodejs=18
@@ -39,7 +38,7 @@ requirements:
   run:
     - python
     - jinja2
-    - llvmlite
+    - llvmlite=0.43
     - pyelftools
     - python-socketio
     - uvicorn-standard
