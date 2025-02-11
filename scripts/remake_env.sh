@@ -18,4 +18,4 @@ source "$full_conda_path"
 
 conda activate base
 conda remove -n $env_name --all --yes
-conda create --yes --name $env_name --channel $local_chan --channel conda-forge $env_name
+conda create --yes --name $env_name --channel "$local_chan" --channel conda-forge $env_name

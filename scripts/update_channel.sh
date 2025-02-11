@@ -19,7 +19,7 @@ conda activate base
 chan_dir="$proj_root/channel/linux-64"
 
 echo "Emptying channel directory..."
-rm -rf "$chan_dir"/*
+rm -rf "${chan_dir:?}"/*
 
 for file in "$conda_dir"/conda-bld/linux-64/lightningsim_trace-0.2.3*.tar.bz2; do
   base_name=${file##*/}
