@@ -56,6 +56,7 @@ class Server:
         solution_dir: Path,
         host: str,
         port: int | None,
+        cu_num: int | None,
         wait_for_next_synthesis=True,
         debug=False,
     ):
@@ -82,6 +83,7 @@ class Server:
         )
         self.host = host
         self.port = port
+        self.cu_num = cu_num
         self.last_state = {
             "status": None,
             "testbench": None,
@@ -318,7 +320,7 @@ class Server:
             try:
                 with self.steps[GlobalStep.RUNNING_SIMULATION_ACTUAL]:
                     self.simulation_actual = await simulate(self.trace)
-                    write_actual_simulation(self.simulation_actual, self.mod_data_struct)
+                    write_actual_simulation(self.simulation_actual, self.mod_data_struct, self.cu_num)
             except Exception:
                 self.simulation_actual = None
                 return False
@@ -501,6 +503,11 @@ def main():
         help="Port to bind to (GUI only)",
     )
     parser.add_argument(
+        "--cu_num",
+        type=int,
+        help="CU number",
+    )
+    parser.add_argument(
         "--skip-wait-for-synthesis",
         action="store_true",
         help="Skip waiting for synthesis to start (GUI only)",
@@ -523,6 +530,7 @@ def main():
             solution_dir,
             args.host,
             args.port,
+            args.cu_num,
             wait_for_next_synthesis=not args.skip_wait_for_synthesis,
             debug=args.debug,
         )

@@ -426,7 +426,6 @@ class StackWriter:
         }
 
     def add_stack_entries(self, key: str, stack: List[StackFrame]):
-        print("Adding stack entries to writer")
         for stack_frame in stack:
             stack_frame_obj = stack_frame_object(stack_frame) # type: ignore
             self.json_data[key].append(stack_frame_obj)

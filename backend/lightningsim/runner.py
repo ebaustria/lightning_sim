@@ -34,7 +34,6 @@ from typing import (
     Generic,
     TypeVar,
 )
-from .trace_writer import write_resolved_trace, write_unresolved_trace
 from .model import Solution, ProjectFile
 from .trace_file import ResolvedTrace, await_trace_functions, read_trace, resolve_trace
 from .module_data_struct import ModuleDataStruct
@@ -587,11 +586,9 @@ class Runner:
 
         with self.steps[RunnerStep.PARSING_SCHEDULE_DATA]:
             trace = await await_trace_functions(read_trace_result)
-            write_unresolved_trace(trace)
 
         with self.steps[RunnerStep.RESOLVING_TRACE] as step:
             trace = await resolve_trace(mod_data_struct, trace, progress_callback=step.set_progress)
-            write_resolved_trace(trace)
             self.trace = trace
 
         return trace
