@@ -1,38 +1,44 @@
 #!/bin/bash
 
+lightningsim_out="/pub/scratch/ebush/Projects/hbm-sim/lightningsim_out"
 lightningsim_dir="/pub/scratch/ebush/miniconda3/envs/lightningsim_trace/lib/python3.12/site-packages/lightningsim"
+lightningsim_sim="$lightningsim_dir/simulation"
+lightningsim_trace="$lightningsim_dir/trace"
 
-vadd="vadd"
 matmul="matmul"
 vadd_1="vadd_1"
 vadd_2="vadd_2"
 vadd_3="vadd_3"
 vadd_dataflow="vadd_dataflow"
 
-hbm_sim_vadd="/pub/scratch/ebush/Projects/hbm-sim/lightningsim_out/$vadd"
-hbm_sim_matmul="/pub/scratch/ebush/Projects/hbm-sim/lightningsim_out/$matmul"
-hbm_sim_vadd_1="/pub/scratch/ebush/Projects/hbm-sim/lightningsim_out/$vadd_1"
-hbm_sim_vadd_2="/pub/scratch/ebush/Projects/hbm-sim/lightningsim_out/$vadd_2"
-hbm_sim_vadd_3="/pub/scratch/ebush/Projects/hbm-sim/lightningsim_out/$vadd_3"
-hbm_sim_vadd_dataflow="/pub/scratch/ebush/Projects/hbm-sim/lightningsim_out/$vadd_dataflow"
-
-traces_vadd="$lightningsim_dir/trace/$vadd"
-traces_matmul="$lightningsim_dir/trace/$matmul"
+hbm_sim_matmul="$lightningsim_out/$matmul"
+hbm_sim_vadd_1="$lightningsim_out/$vadd_1"
+hbm_sim_vadd_2="$lightningsim_out/$vadd_2"
+hbm_sim_vadd_3="$lightningsim_out/$vadd_3"
+hbm_sim_vadd_dataflow="$lightningsim_out/$vadd_dataflow"
 
 move_file () {
     if [ -d "$1" ];
     then
         mkdir -p "$2"
-        mv "$1/actual_simulation.json" "$2/actual_simulation.json"
+        mv "$1/*" "$2/"
     else
-        echo "File $1 could not be found. Skipping..."
+        echo "Directory $1 could not be found. Skipping..."
     fi
 }
 
-echo "Moving simulation files..."
-move_file "$lightningsim_dir/simulation/$vadd" "$hbm_sim_vadd"
-move_file "$lightningsim_dir/simulation/$matmul" "$hbm_sim_matmul"
-move_file "$lightningsim_dir/simulation/$vadd_1" "$hbm_sim_vadd_1"
-move_file "$lightningsim_dir/simulation/$vadd_2" "$hbm_sim_vadd_2"
-move_file "$lightningsim_dir/simulation/$vadd_3" "$hbm_sim_vadd_3"
-move_file "$lightningsim_dir/simulation/$vadd_dataflow" "$hbm_sim_vadd_dataflow"
+echo "Moving simulation and trace files..."
+move_file "$lightningsim_sim/$matmul" "$hbm_sim_matmul"
+move_file "$lightningsim_trace/$matmul" "$hbm_sim_matmul"
+
+move_file "$lightningsim_sim/$vadd_1" "$hbm_sim_vadd_1"
+move_file "$lightningsim_trace/$vadd_1" "$hbm_sim_vadd_1"
+
+move_file "$lightningsim_sim/$vadd_2" "$hbm_sim_vadd_2"
+move_file "$lightningsim_trace/$vadd_2" "$hbm_sim_vadd_2"
+
+move_file "$lightningsim_sim/$vadd_3" "$hbm_sim_vadd_3"
+move_file "$lightningsim_trace/$vadd_3" "$hbm_sim_vadd_3"
+
+move_file "$lightningsim_sim/$vadd_dataflow" "$hbm_sim_vadd_dataflow"
+move_file "$lightningsim_trace/$vadd_dataflow" "$hbm_sim_vadd_dataflow"
