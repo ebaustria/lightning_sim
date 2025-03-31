@@ -9,19 +9,23 @@ matmul="matmul"
 vadd_1="vadd_1"
 vadd_2="vadd_2"
 vadd_3="vadd_3"
+vadd_4="vadd_4"
+vadd_5="vadd_5"
 vadd_dataflow="vadd_dataflow"
 
 hbm_sim_matmul="$lightningsim_out/$matmul"
 hbm_sim_vadd_1="$lightningsim_out/$vadd_1"
 hbm_sim_vadd_2="$lightningsim_out/$vadd_2"
 hbm_sim_vadd_3="$lightningsim_out/$vadd_3"
+hbm_sim_vadd_4="$lightningsim_out/$vadd_4"
+hbm_sim_vadd_5="$lightningsim_out/$vadd_5"
 hbm_sim_vadd_dataflow="$lightningsim_out/$vadd_dataflow"
 
 move_file () {
     if [ -d "$1" ];
     then
         mkdir -p "$2"
-        mv "$1/*" "$2/"
+        mv "$1/"* "$2/"
     else
         echo "Directory $1 could not be found. Skipping..."
     fi
@@ -39,6 +43,12 @@ move_file "$lightningsim_trace/$vadd_2" "$hbm_sim_vadd_2"
 
 move_file "$lightningsim_sim/$vadd_3" "$hbm_sim_vadd_3"
 move_file "$lightningsim_trace/$vadd_3" "$hbm_sim_vadd_3"
+
+move_file "$lightningsim_sim/$vadd_4" "$hbm_sim_vadd_4"
+move_file "$lightningsim_trace/$vadd_4" "$hbm_sim_vadd_4"
+
+move_file "$lightningsim_sim/$vadd_5" "$hbm_sim_vadd_5"
+move_file "$lightningsim_trace/$vadd_5" "$hbm_sim_vadd_5"
 
 move_file "$lightningsim_sim/$vadd_dataflow" "$hbm_sim_vadd_dataflow"
 move_file "$lightningsim_trace/$vadd_dataflow" "$hbm_sim_vadd_dataflow"
