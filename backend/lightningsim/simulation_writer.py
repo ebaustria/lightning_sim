@@ -40,14 +40,24 @@ def fifo_json_obj(fifo_io: Dict[Fifo, FifoIo]):
     pass
 
 
-def write_simulation(json_data: Dict[str, Any], cu_num: int | None):
+def make_dir_name(top_module: str, cu_num: int | None, data_size: int | None):
+    dir_name: str = top_module
+
+    if data_size is not None:
+        dir_name += f"_{data_size}"
+        return dir_name
+
+    if cu_num is not None:
+        dir_name += f"_{cu_num}"
+        return dir_name
+
+    return dir_name
+
+
+def write_simulation(json_data: Dict[str, Any], cu_num: int | None, data_size: int | None):
     top_module: str = json_data["top_module"]["name"]
-    base_name_prefix: str
-    if cu_num is None:
-        base_name_prefix = top_module
-    else:
-        base_name_prefix = f"{top_module}_{cu_num}"
-    sim_path: Path = resolve_path("simulation", f"{base_name_prefix}/actual_simulation.json")
+    dir_name: str = make_dir_name(top_module, cu_num, data_size)
+    sim_path: Path = resolve_path("simulation", f"{dir_name}/actual_simulation.json")
     print(f"trace path: {sim_path}")
 
     if os.path.exists(sim_path):
@@ -63,7 +73,7 @@ def write_simulation(json_data: Dict[str, Any], cu_num: int | None):
         json.dump(json_data, f, ensure_ascii=False, indent=4)
 
 
-def write_actual_simulation(sim: Simulation, mod_data_struct: ModuleDataStruct, cu_num: int | None):
+def write_actual_simulation(sim: Simulation, mod_data_struct: ModuleDataStruct, cu_num: int | None, data_size: int | None):
     top_module: SimulatedModule = sim.top_module
 
     json_data: Dict[str, Any] = {
@@ -76,4 +86,4 @@ def write_actual_simulation(sim: Simulation, mod_data_struct: ModuleDataStruct, 
         "fifo_io": fifo_json_obj(sim.fifo_io)
     }
 
-    write_simulation(json_data, cu_num)
+    write_simulation(json_data, cu_num, data_size)
