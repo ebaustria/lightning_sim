@@ -7,7 +7,6 @@ class ModuleDataStruct:
         self.mod_name_dictionary: Dict[str, int] = {}
         self.mod_id_dictionary: Dict[int, str] = {}
 
-
     def module_name_exists(self, mod_name: str) -> bool:
         if mod_name in self.mod_name_dictionary:
             mod_id: int = self.mod_name_dictionary[mod_name]
@@ -16,7 +15,6 @@ class ModuleDataStruct:
                 return True
 
         return False
-
 
     def module_id_exists(self, mod_id: int) -> bool:
         if mod_id in self.mod_id_dictionary:
@@ -27,7 +25,6 @@ class ModuleDataStruct:
 
         return False
 
-
     def add_module_if_not_present(self, mod_name: str):
         if self.module_name_exists(mod_name):
             return
@@ -37,13 +34,11 @@ class ModuleDataStruct:
         self.mod_name_dictionary[mod_name] = self.id_counter
         self.mod_id_dictionary[self.id_counter] = mod_name
 
-
     def get_module_id_if_present(self, mod_name: str) -> int:
         if self.module_name_exists(mod_name):
             return self.mod_name_dictionary[mod_name]
 
         return -1
-
 
     def get_module_name_if_present(self, mod_id: int) -> str:
         if self.module_id_exists(mod_id):

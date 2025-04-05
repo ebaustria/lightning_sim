@@ -22,5 +22,5 @@ async def simulate(trace: ResolvedTrace):
             for fifo, fifo_io in simulation.fifo_io.items()
         },
         fifo_io=simulation.fifo_io,
-        axi_io=simulation.axi_io
+        axi_io=simulation.axi_io,
     )

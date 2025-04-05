@@ -120,9 +120,11 @@ class Server:
                 "start": step.start_time,
                 "progress": step.progress,
                 "end": step.end_time,
-                "error": "".join(format_exception(step.error))
-                if step.error is not None
-                else None,
+                "error": (
+                    "".join(format_exception(step.error))
+                    if step.error is not None
+                    else None
+                ),
             }
             for status, step in self.steps.items()
         }
@@ -212,12 +214,16 @@ class Server:
         if self.simulation_actual is None and self.simulation_optimal is None:
             return None
         return build_latency_object(
-            self.simulation_actual.top_module
-            if self.simulation_actual is not None
-            else None,
-            self.simulation_optimal.top_module
-            if self.simulation_optimal is not None
-            else None,
+            (
+                self.simulation_actual.top_module
+                if self.simulation_actual is not None
+                else None
+            ),
+            (
+                self.simulation_optimal.top_module
+                if self.simulation_optimal is not None
+                else None
+            ),
         )
 
     def get_state(self):
@@ -322,7 +328,12 @@ class Server:
             try:
                 with self.steps[GlobalStep.RUNNING_SIMULATION_ACTUAL]:
                     self.simulation_actual = await simulate(self.trace)
-                    write_actual_simulation(self.simulation_actual, self.mod_data_struct, self.cu_num, self.data_size)
+                    write_actual_simulation(
+                        self.simulation_actual,
+                        self.mod_data_struct,
+                        self.cu_num,
+                        self.data_size,
+                    )
             except Exception:
                 self.simulation_actual = None
                 return False
@@ -368,7 +379,9 @@ class Server:
         # use port 0 and let the OS auto-assign a port, but that makes it hard
         # to port-forward LightningSim in advance when using it over SSH, or
         # reuse the same port-forward when restarting LightningSim)
-        sock = socket.socket(family=socket.AF_INET6 if ":" in self.host else socket.AF_INET)
+        sock = socket.socket(
+            family=socket.AF_INET6 if ":" in self.host else socket.AF_INET
+        )
         sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         for port in range(DEFAULT_PORT_MIN, DEFAULT_PORT_MAX + 1):
             try:
@@ -509,11 +522,7 @@ def main():
         type=int,
         help="CU number",
     )
-    parser.add_argument(
-        "--data_size",
-        type=int,
-        help="data size"
-    )
+    parser.add_argument("--data_size", type=int, help="data size")
     parser.add_argument(
         "--skip-wait-for-synthesis",
         action="store_true",
@@ -546,15 +555,19 @@ def main():
         return 0
     else:
         if not args.cli:
-            logger.info("Starting with v0.2.2, LightningSim defaults to "
-                        "non-interactive CLI mode. To use the interactive "
-                        "web-based GUI instead, pass the --gui flag. To "
-                        "suppress this message, pass the --cli flag "
-                        "explicitly.")
+            logger.info(
+                "Starting with v0.2.2, LightningSim defaults to "
+                "non-interactive CLI mode. To use the interactive "
+                "web-based GUI instead, pass the --gui flag. To "
+                "suppress this message, pass the --cli flag "
+                "explicitly."
+            )
 
         if args.skip_wait_for_synthesis:
-            logger.warn("--skip-wait-for-synthesis has no effect in CLI mode; "
-                        "this is the default behavior.")
+            logger.warn(
+                "--skip-wait-for-synthesis has no effect in CLI mode; "
+                "this is the default behavior."
+            )
 
         return run(run_simple(solution_dir, debug=args.debug))
 

@@ -51,8 +51,7 @@ OBJCOPY = environ.get("OBJCOPY", "objcopy")
 
 
 class PatternMapper(Protocol):
-    def __call__(self, groupdict: Dict[str, str]) -> Dict[str, Any]:
-        ...
+    def __call__(self, groupdict: Dict[str, str]) -> Dict[str, Any]: ...
 
 
 @dataclass(slots=True)
@@ -540,7 +539,9 @@ class Runner:
                     for file in project_binary_files:
                         shutil.copy2(file.path, output_dir)
                     for directory in project_directories:
-                        os.symlink(directory.path.absolute(), output_dir / directory.path.name)
+                        os.symlink(
+                            directory.path.absolute(), output_dir / directory.path.name
+                        )
 
             with self.steps[RunnerStep.RUNNING_TESTBENCH]:
                 trace_reader_fd, trace_writer_fd = os.pipe()
@@ -590,7 +591,9 @@ class Runner:
             write_unresolved_trace(trace)
 
         with self.steps[RunnerStep.RESOLVING_TRACE] as step:
-            trace = await resolve_trace(mod_data_struct, trace, progress_callback=step.set_progress)
+            trace = await resolve_trace(
+                mod_data_struct, trace, progress_callback=step.set_progress
+            )
             write_resolved_trace(trace)
             self.trace = trace
 

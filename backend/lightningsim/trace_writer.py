@@ -4,14 +4,21 @@ import json
 from typing import Any, Dict, Union
 
 from .writer_utils import resolve_path
-from .trace_file import AXIInterface, ResolvedStream, ResolvedTrace, Stream, TraceEntry, UnresolvedTrace
+from .trace_file import (
+    AXIInterface,
+    ResolvedStream,
+    ResolvedTrace,
+    Stream,
+    TraceEntry,
+    UnresolvedTrace,
+)
 from .model import Function, Instruction, InstructionLatency, CDFGEdge, BasicBlock
 from .model.function import Port
 from .model.dataflow import Channel
 
 
 def axi_json_obj(axi_interface: AXIInterface) -> Dict[str, Union[str, int]]:
-    return { "name": axi_interface.name, "address": axi_interface.address }
+    return {"name": axi_interface.name, "address": axi_interface.address}
 
 
 def fifo_json_obj(resolved_stream: ResolvedStream) -> Dict[str, Union[str, int]]:
@@ -19,7 +26,7 @@ def fifo_json_obj(resolved_stream: ResolvedStream) -> Dict[str, Union[str, int]]
         "display_name": resolved_stream.get_display_name(),
         "id": resolved_stream.id,
         "name": resolved_stream.name,
-        "width": resolved_stream.width
+        "width": resolved_stream.width,
     }
 
 
@@ -29,7 +36,7 @@ def operand_json_obj(operand: CDFGEdge) -> Dict[str, Union[int, bool]]:
         "type": operand.type,
         "is_back_edge": operand.is_back_edge,
         "source_id": operand.source_id,
-        "sink_id": operand.sink_id
+        "sink_id": operand.sink_id,
     }
 
 
@@ -39,7 +46,7 @@ def channel_json_obj(channel: Channel):
         "name": channel.name,
         "is_scalar": channel.is_scalar,
         "sources": [source.id for source in channel.sources],
-        "sinks": [sink.id for sink in channel.sinks]
+        "sinks": [sink.id for sink in channel.sinks],
     }
 
 
@@ -47,7 +54,9 @@ def basic_block_json_obj(basic_block: BasicBlock):
     dataflow = {}
     if basic_block.dataflow:
         dataflow = {
-            "channels": [channel_json_obj(channel) for channel in basic_block.dataflow.channels]
+            "channels": [
+                channel_json_obj(channel) for channel in basic_block.dataflow.channels
+            ]
         }
     return {
         "id": basic_block.id,
@@ -58,7 +67,7 @@ def basic_block_json_obj(basic_block: BasicBlock):
         "is_pipeline": basic_block.is_pipeline,
         "is_pipeline_critical_path": basic_block.is_pipeline_critical_path,
         "is_sequential": basic_block.is_sequential,
-        "dataflow": dataflow
+        "dataflow": dataflow,
     }
 
 
@@ -71,8 +80,12 @@ def instruction_json_obj(inst: Instruction) -> Dict[str, Any]:
         "index": inst.index,
         "name": inst.name,
         "opcode": inst.opcode,
-        "operands": [operand_json_obj(operand) for operand in inst.operands if operand is not None],
-        "latency": inst_latency_json_obj(inst.latency)
+        "operands": [
+            operand_json_obj(operand)
+            for operand in inst.operands
+            if operand is not None
+        ],
+        "latency": inst_latency_json_obj(inst.latency),
     }
 
 
@@ -82,16 +95,12 @@ def inst_latency_json_obj(latency: InstructionLatency) -> Dict[str, int]:
         "start": latency.start,
         "end": latency.end,
         "relative_start": latency.relative_start,
-        "relative_end": latency.relative_end
+        "relative_end": latency.relative_end,
     }
 
 
 def port_json_obj(port: Port) -> Dict[str, Union[int, str]]:
-    return {
-        "id": port.id,
-        "interface_type": port.interface_type,
-        "name": port.name
-    }
+    return {"id": port.id, "interface_type": port.interface_type, "name": port.name}
 
 
 # TODO Add more information to this
@@ -102,41 +111,50 @@ def functions_json_obj(functions: Dict[str, Function]) -> Dict[str, Any]:
             "instructions": {
                 id: instruction_json_obj(inst) for id, inst in func.instructions.items()
             },
-            "ports": { port_id: port_json_obj(port) for port_id, port in func.ports.items() },
-            "basic_blocks": { bb_id: basic_block_json_obj(basic_block) for bb_id, basic_block in func.basic_blocks.items() }
-        } for key, func in functions.items()
+            "ports": {
+                port_id: port_json_obj(port) for port_id, port in func.ports.items()
+            },
+            "basic_blocks": {
+                bb_id: basic_block_json_obj(basic_block)
+                for bb_id, basic_block in func.basic_blocks.items()
+            },
+        }
+        for key, func in functions.items()
     }
 
 
 def axi_latencies_json_obj(axi_latencies: Dict[AXIInterface, int]) -> Dict[str, int]:
-    return { key.name: value for key, value in axi_latencies.items() }
+    return {key.name: value for key, value in axi_latencies.items()}
 
 
 def channel_depths_json_obj(channel_depths: Dict[Stream, int]):
-    return { key.name: { "id": key.id, "address": key.address, "value": value } for key, value in channel_depths.items() }
+    return {
+        key.name: {"id": key.id, "address": key.address, "value": value}
+        for key, value in channel_depths.items()
+    }
 
 
-def derive_metadata(trace_entry: TraceEntry): # type: ignore
+def derive_metadata(trace_entry: TraceEntry):  # type: ignore
     type = trace_entry.type
-    metadata = trace_entry.metadata # type: ignore
+    metadata = trace_entry.metadata  # type: ignore
 
     if type in ("trace_bb", "loop_bb"):
-        return { "function": metadata.function, "basic_block": metadata.basic_block } # type: ignore
+        return {"function": metadata.function, "basic_block": metadata.basic_block}  # type: ignore
     if type in ("fifo_read", "fifo_write"):
-        return { "fifo": { "address": metadata.fifo.address, "id": metadata.fifo.id, "name": metadata.fifo.name } } # type: ignore
+        return {"fifo": {"address": metadata.fifo.address, "id": metadata.fifo.id, "name": metadata.fifo.name}}  # type: ignore
     if type in ("axi_readreq", "axi_writereq"):
-        return { "offset": metadata.offset, "increment": metadata.increment, "count": metadata.count, "interface": { "address": metadata.interface.address, "name": metadata.interface.name } } # type: ignore
+        return {"offset": metadata.offset, "increment": metadata.increment, "count": metadata.count, "interface": {"address": metadata.interface.address, "name": metadata.interface.name}}  # type: ignore
     if type in ("axi_read", "axi_write", "axi_writeresp"):
-        return { "interface": { "address": metadata.interface.address, "name": metadata.interface.name } } # type: ignore
-    return { "name": metadata.name, "tripcount": metadata.tripcount } # type: ignore
+        return {"interface": {"address": metadata.interface.address, "name": metadata.interface.name}}  # type: ignore
+    return {"name": metadata.name, "tripcount": metadata.tripcount}  # type: ignore
 
 
 # TODO Add more information to this
-def trace_entry_json_obj(trace_entry: TraceEntry): # type: ignore
+def trace_entry_json_obj(trace_entry: TraceEntry):  # type: ignore
     return {
         "type": trace_entry.type,
-        "metadata": derive_metadata(trace_entry)
-    } # type: ignore
+        "metadata": derive_metadata(trace_entry),
+    }  # type: ignore
 
 
 def write_trace_json(json_data: Dict[str, Any], trace_path: Path):
@@ -156,17 +174,17 @@ def write_trace_json(json_data: Dict[str, Any], trace_path: Path):
 def write_unresolved_trace(trace: UnresolvedTrace):
     trace_path = resolve_path("trace", "unresolved_trace.json")
 
-    json_data = { # type: ignore
+    json_data = {  # type: ignore
         "byte_count": trace.byte_count,
         "line_count": trace.line_count,
         "is_ap_ctrl_chain": trace.is_ap_ctrl_chain,
         "functions": functions_json_obj(trace.functions),
         "axi_latencies": axi_latencies_json_obj(trace.axi_latencies),
         "channel_depths": channel_depths_json_obj(trace.channel_depths),
-        "trace": [ trace_entry_json_obj(entry) for entry in trace.trace ]
+        "trace": [trace_entry_json_obj(entry) for entry in trace.trace],
     }
 
-    write_trace_json(json_data, trace_path) # type: ignore
+    write_trace_json(json_data, trace_path)  # type: ignore
 
 
 def write_resolved_trace(trace: ResolvedTrace):
@@ -183,8 +201,8 @@ def write_resolved_trace(trace: ResolvedTrace):
         "params": {
             "ap_ctrl_chain_top_port_count": params.ap_ctrl_chain_top_port_count,
             "fifo_depths": params.fifo_depths,
-            "axi_delays": params.axi_delays
-        }
+            "axi_delays": params.axi_delays,
+        },
     }
 
     write_trace_json(json_data, trace_path)

@@ -53,11 +53,11 @@ class AXIRequestMetadata:
 class AXIIOMetadata:
     interface: "AXIInterface"
 
+
 @dataclass(frozen=True, slots=True)
 class LoopMetadata:
     name: str
     tripcount: int
-
 
 
 @dataclass(frozen=True, slots=True)
@@ -288,10 +288,11 @@ class ResolvedBlock:
     def __repr__(self):
         return f"<ResolvedBlock {self.basic_block.name} in {self.basic_block.parent.name}: {self.start_stage}-{self.end_stage} with {self.num_events} event(s)>"
 
+
 @dataclass(slots=True)
 class UnresolvedLoop:
-    name : str
-    tripcount : int
+    name: str
+    tripcount: int
     ii: int
     blocks: List[ResolvedBlock]
     events: List[ResolvedEvent]
@@ -333,27 +334,31 @@ class StackFrame:
     blocks_seen: Set[BasicBlock] = field(default_factory=set)
     returns: List[Tuple[str, int]] = field(default_factory=list)
 
-def terminator_object(terminator: Instruction): # type: ignore
+
+def terminator_object(terminator: Instruction):  # type: ignore
     return {
         "id": terminator.id,
         "name": terminator.name,
         "function_name": terminator.function_name,
-        "index": terminator.index
-    } # type: ignore
+        "index": terminator.index,
+    }  # type: ignore
+
 
 def parent_object():
     return
 
-def region_object(region: CDFGRegion): # type: ignore
+
+def region_object(region: CDFGRegion):  # type: ignore
     return {
         "name": region.name,
         "depth": region.depth,
         "type": region.type,
         "start": region.start,
-        "end": region.end
-    } # type: ignore
+        "end": region.end,
+    }  # type: ignore
 
-def basic_block_object(basic_block: BasicBlock): # type: ignore
+
+def basic_block_object(basic_block: BasicBlock):  # type: ignore
     return {
         "id": basic_block.id,
         "name": basic_block.name,
@@ -364,38 +369,39 @@ def basic_block_object(basic_block: BasicBlock): # type: ignore
         "length": basic_block.length,
         "parent": basic_block.parent.name,
         "terminator": terminator_object(basic_block.terminator),
-        "region": region_object(basic_block.region)
-    } # type: ignore
+        "region": region_object(basic_block.region),
+    }  # type: ignore
 
 
-def resolved_block_object(resolved_block: ResolvedBlock): # type: ignore
-    
+def resolved_block_object(resolved_block: ResolvedBlock):  # type: ignore
+
     return {
         "basic_block": basic_block_object(resolved_block.basic_block),
         "num_events": resolved_block.num_events,
         "start_stage": resolved_block.start_stage,
-        "end_stage": resolved_block.end_stage
-    } # type: ignore
+        "end_stage": resolved_block.end_stage,
+    }  # type: ignore
 
-def unresolved_loop_object(unresolved_loop: UnresolvedLoop): # type: ignore
+
+def unresolved_loop_object(unresolved_loop: UnresolvedLoop):  # type: ignore
     return {
         "name": unresolved_loop.name,
         "tripcount": unresolved_loop.tripcount,
         "ii": unresolved_loop.ii,
         "end_stage": unresolved_loop.end_stage,
-        "latest_end_stage": unresolved_loop.latest_end_stage
-    } # type: ignore
+        "latest_end_stage": unresolved_loop.latest_end_stage,
+    }  # type: ignore
 
 
-def stack_frame_object(stack_frame: StackFrame): # type: ignore
+def stack_frame_object(stack_frame: StackFrame):  # type: ignore
     current_block = {}
     current_loop = {}
 
     if stack_frame.current_block is not None:
-        current_block = resolved_block_object(stack_frame.current_block) # type: ignore
+        current_block = resolved_block_object(stack_frame.current_block)  # type: ignore
 
     if stack_frame.current_loop is not None:
-        current_loop = unresolved_loop_object(stack_frame.current_loop) # type: ignore
+        current_loop = unresolved_loop_object(stack_frame.current_loop)  # type: ignore
 
     return {
         "current_block": current_block,
@@ -404,8 +410,8 @@ def stack_frame_object(stack_frame: StackFrame): # type: ignore
         "dynamic_stage": stack_frame.dynamic_stage,
         "static_stage": stack_frame.static_stage,
         "latest_dynamic_stage": stack_frame.latest_dynamic_stage,
-        "latest_static_stage": stack_frame.latest_static_stage
-    } # type: ignore
+        "latest_static_stage": stack_frame.latest_static_stage,
+    }  # type: ignore
 
 
 def get_module_for_operation(stack: List[StackFrame]) -> str:
@@ -420,19 +426,16 @@ def get_module_for_operation(stack: List[StackFrame]) -> str:
 
 class StackWriter:
     def __init__(self):
-        self.json_data: Dict[str, List[Any]] = {
-            "reads": [],
-            "writes": []
-        }
+        self.json_data: Dict[str, List[Any]] = {"reads": [], "writes": []}
 
     def add_stack_entries(self, key: str, stack: List[StackFrame]):
         for stack_frame in stack:
-            stack_frame_obj = stack_frame_object(stack_frame) # type: ignore
+            stack_frame_obj = stack_frame_object(stack_frame)  # type: ignore
             self.json_data[key].append(stack_frame_obj)
 
     def write_stack(self):
-        stack_path = resolve_path("stack", "stack.json") # type: ignore
-        
+        stack_path = resolve_path("stack", "stack.json")  # type: ignore
+
         if os.path.exists(stack_path):
             print(f"Stack path '{stack_path}' exists. Removing...")
             os.remove(stack_path)
@@ -444,6 +447,7 @@ class StackWriter:
         print(f"Writing new stack to output path '{stack_path}'.")
         with open(stack_path, "w+", encoding="utf-8") as f:
             json.dump(self.json_data, f, ensure_ascii=False, indent=4)
+
 
 async def resolve_trace(
     mod_data_struct: ModuleDataStruct,
@@ -492,11 +496,17 @@ async def resolve_trace(
                 next_frame: StackFrame | None = None
                 builder_call_args: Tuple[int, int, int, int, bool] | None = None
 
-                end_stage=current_resolved_block.start_stage + event_instruction.latency.relative_end
-                start_stage=current_resolved_block.start_stage + event_instruction.latency.relative_start
+                end_stage = (
+                    current_resolved_block.start_stage
+                    + event_instruction.latency.relative_end
+                )
+                start_stage = (
+                    current_resolved_block.start_stage
+                    + event_instruction.latency.relative_start
+                )
                 if current_loop is not None:
-                    end_stage+=current_loop.ii*frame.loop_idx
-                    start_stage+=current_loop.ii*frame.loop_idx
+                    end_stage += current_loop.ii * frame.loop_idx
+                    start_stage += current_loop.ii * frame.loop_idx
                 safe_offset = start_stage - min(
                     basic_block.end
                     - basic_block.length
@@ -604,7 +614,9 @@ async def resolve_trace(
                             entry.metadata.interface.address,
                         )
                     else:
-                        raise ValueError(f"unexpected {entry.type} during trace resolution")
+                        raise ValueError(
+                            f"unexpected {entry.type} during trace resolution"
+                        )
 
                 current_resolved_block.num_events += 1
                 if current_resolved_block.num_events >= len(events):
@@ -612,12 +624,21 @@ async def resolve_trace(
                     if current_loop is not None:
                         current_resolved_block.num_events = 0
                         assert frame.current_block is not None
-                        idx = current_loop.blocks.index(frame.current_block) +1
-                        while (True):
+                        idx = current_loop.blocks.index(frame.current_block) + 1
+                        while True:
                             if idx == len(current_loop.blocks):
-                                frame.loop_idx +=1
-                            if len(current_loop.blocks[idx%len(current_loop.blocks)].basic_block.events) >0:
-                                frame.current_block = current_loop.blocks[idx%len(current_loop.blocks)]
+                                frame.loop_idx += 1
+                            if (
+                                len(
+                                    current_loop.blocks[
+                                        idx % len(current_loop.blocks)
+                                    ].basic_block.events
+                                )
+                                > 0
+                            ):
+                                frame.current_block = current_loop.blocks[
+                                    idx % len(current_loop.blocks)
+                                ]
                                 break
                             idx += 1
                     else:
@@ -665,7 +686,10 @@ async def resolve_trace(
                     frame.current_loop = current_loop
                 elif entry.type == "end_loop_blocks":
                     assert current_loop is not None
-                    loop_overlap_length = current_loop.blocks[-1].basic_block.end - current_loop.blocks[0].basic_block.start
+                    loop_overlap_length = (
+                        current_loop.blocks[-1].basic_block.end
+                        - current_loop.blocks[0].basic_block.start
+                    )
                     last_block_overlap = loop_overlap_length
                     if current_loop.blocks[0].basic_block.pipeline is not None:
                         ii = current_loop.blocks[0].basic_block.pipeline.ii
@@ -694,7 +718,7 @@ async def resolve_trace(
                     frame.loop_idx = 0
 
                     for resolved_block in current_loop.blocks:
-                        if len(resolved_block.basic_block.events) >0:
+                        if len(resolved_block.basic_block.events) > 0:
                             frame.current_block = resolved_block
                             break
                 elif entry.type in ("trace_bb", "loop_bb"):
@@ -713,8 +737,7 @@ async def resolve_trace(
                         and trace.is_ap_ctrl_chain
                     ):
                         ap_ctrl_chain_top_port_count = sum(
-                            port.interface_type == 0
-                            for port in function.ports.values()
+                            port.interface_type == 0 for port in function.ports.values()
                         )
 
                     if frame.pipeline != pipeline:
@@ -770,9 +793,12 @@ async def resolve_trace(
                         if basic_block in frame.blocks_seen:
                             frame.blocks_seen.clear()
                         frame.blocks_seen.add(basic_block)
-                    
+
                         current_resolved_block = ResolvedBlock(
-                            basic_block, 0, frame.dynamic_stage, frame.dynamic_stage - basic_block.length
+                            basic_block,
+                            0,
+                            frame.dynamic_stage,
+                            frame.dynamic_stage - basic_block.length,
                         )
 
                         frame.current_block = current_resolved_block
@@ -794,16 +820,23 @@ async def resolve_trace(
                                     return True
                     elif entry.type == "loop_bb":
                         assert current_loop is not None
-                        if current_loop.start_stage is None: #this is setting the dynamic start stage of the loop to the dynamic start stage of this loop_bb (only on the first one)
-                            current_loop.start_stage = frame.dynamic_stage - basic_block.length
+                        if (
+                            current_loop.start_stage is None
+                        ):  # this is setting the dynamic start stage of the loop to the dynamic start stage of this loop_bb (only on the first one)
+                            current_loop.start_stage = (
+                                frame.dynamic_stage - basic_block.length
+                            )
                         resolved_block = ResolvedBlock(
-                            basic_block, 0, frame.dynamic_stage, frame.dynamic_stage - basic_block.length
+                            basic_block,
+                            0,
+                            frame.dynamic_stage,
+                            frame.dynamic_stage - basic_block.length,
                         )
                         current_loop.blocks.append(resolved_block)
 
             if time() - start_time >= deadline:
                 return False
-            
+
         stack_writer.write_stack()
 
         i = len(trace)
