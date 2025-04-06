@@ -5,6 +5,8 @@ lightningsim_dir="/pub/scratch/ebush/miniconda3/envs/lightningsim_trace/lib/pyth
 lightningsim_sim="$lightningsim_dir/simulation"
 lightningsim_trace="$lightningsim_dir/trace"
 
+data_sizes=("4096" "8192" "16384" "32768" "65536")
+
 matmul="matmul"
 vadd_1="vadd_1"
 vadd_2="vadd_2"
@@ -50,5 +52,7 @@ move_file "$lightningsim_trace/$vadd_4" "$hbm_sim_vadd_4"
 move_file "$lightningsim_sim/$vadd_5" "$hbm_sim_vadd_5"
 move_file "$lightningsim_trace/$vadd_5" "$hbm_sim_vadd_5"
 
-move_file "$lightningsim_sim/$vadd_dataflow" "$hbm_sim_vadd_dataflow"
-move_file "$lightningsim_trace/$vadd_dataflow" "$hbm_sim_vadd_dataflow"
+for dat_size in "${data_sizes[@]}"; do
+    move_file "$lightningsim_sim/${vadd_dataflow}_$dat_size" "${hbm_sim_vadd_dataflow}_$dat_size"
+    move_file "$lightningsim_trace/${vadd_dataflow}_$dat_size" "${hbm_sim_vadd_dataflow}_$dat_size"
+done
